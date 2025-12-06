@@ -10,3 +10,8 @@ class customUsers(AbstractUser):
         MinLengthValidator(10),
         RegexValidator(r'^\d{10}$',message="Phone must be exactly 10 digits.")
     ])
+    first_name = models.CharField(null=True)
+    last_name = models.CharField(null=True)
+    is_superuser = models.BooleanField(null=True,default=False)
+    is_staff = models.BooleanField(null=True,default=False)
+    is_active = models.BooleanField(null=True)

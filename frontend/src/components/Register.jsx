@@ -4,8 +4,18 @@ import MyTextField from './Form/MyTextField'
 import MyPassField from './Form/MyPassField'
 import { MyButton } from './Form/MyButton'
 import {Link} from 'react-router-dom'
+import {useForm} from 'react-hook-form'
+import {useNavigate} from 'react-router-dom'
+import { regSubmission } from '../utils/regSubmission'
 export const Register = () => {
+    const navigate = useNavigate()
+    const {control,handleSubmit} = useForm();
+    const submission =(data)=> regSubmission(data).then(()=>{
+        navigate('/').catch(err => console.error(err));
+    })
+    
     return (
+        <form onSubmit={handleSubmit(submission)}>
         <Box className={"myFormBackGround"}>
             <Box className={"whiteBox"}>
                 <Box className="itemBox">
@@ -14,22 +24,22 @@ export const Register = () => {
                     </Box>
                 </Box>
                 <Box className="itemBox">
-                    <MyTextField label={"UserName"}/>
+                    <MyTextField label={"UserName"} name="username" control={control}/>
                 </Box>
                 <Box className="itemBox">
-                    <MyTextField label={"Email"}/>
+                    <MyTextField label={"Email"} name="email" control={control}/>
                 </Box>
                 <Box className="itemBox">
-                    <MyTextField label={"Phone Number"}/>
+                    <MyTextField label={"Phone Number"} name="phone_number" control={control}/>
                 </Box>
                 <Box className="itemBox">
-                    <MyPassField label={"Password"}/>
+                    <MyPassField label={"Password"} name="password" control={control}/>
                 </Box>
                 <Box className="itemBox">
-                    <MyPassField label={"Confirm Password"}/>
+                    <MyPassField label={"Confirm Password"} name="password2" control={control}/>
                 </Box>
                 <Box className="itemBox">
-                       <MyButton label={"Register"}/>
+                       <MyButton label={"Register"} type="submit"/>
                 </Box>
                 <Box className="itemBox">
                     <Link to='/'>
@@ -38,5 +48,6 @@ export const Register = () => {
                 </Box>
             </Box>
         </Box>
+        </form>
     )
 }

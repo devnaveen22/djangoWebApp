@@ -1,9 +1,9 @@
 import '../../App.css'
 import Button from '@mui/material/Button';
 export const MyButton = (props)=>{
-    const {label} = props
+    const {label,type} = props
     return(
-        <Button variant="contained" className='myButton'>
+        <Button type={type} variant="contained" className='myButton'>
             {label}
         </Button>
     )
