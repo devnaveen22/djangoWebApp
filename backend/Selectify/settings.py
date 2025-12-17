@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'api',
     'corsheaders',
     'rest_framework',
+    'knox',
 ]
 
 MIDDLEWARE = [
@@ -46,6 +47,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 AUTH_USER_MODEL = 'api.customUsers'
+
+AUTHENTICATION_BACKENDS = [
+    'api.auth_backend.PhoneNumberAuthBackEnd'
+]
 
 ROOT_URLCONF = 'Selectify.urls'
 
@@ -66,7 +71,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Selectify.wsgi.application'
 
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',)
+}
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 

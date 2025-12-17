@@ -27,9 +27,6 @@ export const Register = () => {
                     <MyTextField label={"UserName"} name="username" control={control}/>
                 </Box>
                 <Box className="itemBox">
-                    <MyTextField label={"Email"} name="email" control={control}/>
-                </Box>
-                <Box className="itemBox">
                     <MyTextField label={"Phone Number"} name="phone_number" control={control}/>
                 </Box>
                 <Box className="itemBox">
