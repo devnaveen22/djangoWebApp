@@ -4,6 +4,7 @@ import { routeWithIcons } from "./utils/routeWithIcons";
 import { useLocation } from 'react-router-dom'
 import { Login } from "./components/Login";
 import { Register } from "./components/Register";
+import ProtectedRoutes from "./ProtectedRoutes";
 
 const App = () => {
   const location = useLocation()
@@ -22,13 +23,15 @@ const App = () => {
             <Navbar
               content={
                 <Routes>
-                  {routeWithIcons.map((r, index) => (
-                    <Route
-                      key={index}
-                      path={r.path}
-                      element={<r.component />}
-                    />
-                  ))}
+                  <Route element={<ProtectedRoutes/>}>
+                    {routeWithIcons.map((r, index) => (
+                      <Route
+                        key={index}
+                        path={r.path}
+                        element={<r.component />}
+                      />
+                    ))}
+                  </Route>
                 </Routes>
               }
             />

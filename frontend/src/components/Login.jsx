@@ -4,8 +4,19 @@ import MyTextField from './Form/MyTextField'
 import MyPassField from './Form/MyPassField'
 import { MyButton } from './Form/MyButton'
 import {Link} from 'react-router-dom'
+import {useForm} from 'react-hook-form'
+import {useNavigate} from 'react-router-dom'
+import { loginSubmission } from '../utils/loginSubmission'
 export const Login = () => {
+    const navigate = useNavigate()
+    const {control,handleSubmit} = useForm();
+    const submission =(data)=> loginSubmission(data).then((response)=>{
+      localStorage.setItem('token',response.data.token)
+       navigate('/home')
+    })
+       .catch(err => console.error(err));
     return (
+        <form onSubmit={handleSubmit(submission)}>
         <Box className={"myFormBackGround"}>
             <Box className={"whiteBox"}>
                 <Box className="itemBox">
@@ -14,13 +25,13 @@ export const Login = () => {
                     </Box>
                 </Box>
                 <Box className="itemBox">
-                    <MyTextField label={"UserName"}/>
+                    <MyTextField label={"Phone Number"} name="phone_number" control={control}/>
                 </Box>
                 <Box className="itemBox">
-                    <MyPassField label={"Password"}/>
+                    <MyPassField label={"Password"} name="password" control={control}/>
                 </Box>
                 <Box className="itemBox">
-                       <MyButton label={"Sign in"}/>
+                       <MyButton label={"Sign in"} type="submit"/>
                 </Box>
                 <Box className="itemBox">
                     <Link to='/register'>
@@ -29,5 +40,6 @@ export const Login = () => {
                 </Box>
             </Box>
         </Box>
+        </form>
     )
 }
