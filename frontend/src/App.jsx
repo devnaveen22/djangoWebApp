@@ -10,12 +10,14 @@ const App = () => {
   const location = useLocation()
   const path = location.pathname
   const isLoginOrReg = path === '/' || path === '/register'
+  const Token = localStorage.getItem('Token')
+  const isAuthenticated = Token && Token?.length >0
   return (
     <>
       {
-        isLoginOrReg ? (
+        isLoginOrReg && !isAuthenticated ? (
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={ <Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>
         )

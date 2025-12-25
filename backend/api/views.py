@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from rest_framework import viewsets,permissions
 from django.contrib.auth import get_user_model,authenticate
-from .serializers import RegisterSerializer,LoginSerializer,UserSerializer
+from .serializers import RegisterSerializer,LoginSerializer,UserSerializer,SlotSerializer
 from rest_framework.response import Response
 from knox.models import AuthToken
-
+from .models import Slot
 User = get_user_model()
 
 class RegisterViewset(viewsets.ViewSet):
@@ -32,10 +32,10 @@ class LoginViewSet(viewsets.ViewSet):
             password = serializer.validated_data['password']
             user = authenticate(request,username=phone_number,password=password)
             if user:
-                _,auth_token= AuthToken.objects.create(user)
+                _,token= AuthToken.objects.create(user)
                 return Response({
                     "user": UserSerializer(user).data,
-                    "token": auth_token
+                    "token": token
                 })
             
             else:

@@ -11,8 +11,8 @@ export const Login = () => {
     const navigate = useNavigate()
     const {control,handleSubmit} = useForm();
     const submission =(data)=> loginSubmission(data).then((response)=>{
-      localStorage.setItem('token',response.data.token)
-       navigate('/home')
+      localStorage.setItem('Token',response.data.token)
+       navigate('/')
     })
        .catch(err => console.error(err));
     return (

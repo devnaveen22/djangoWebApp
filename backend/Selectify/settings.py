@@ -72,8 +72,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Selectify.wsgi.application'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',)
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'knox.auth.TokenAuthentication',  # Change this!
+    ],
 }
+
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 

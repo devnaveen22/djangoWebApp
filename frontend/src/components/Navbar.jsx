@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -15,8 +14,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { routeWithIcons } from '../utils/routeWithIcons';
+import '../App.css';
+import AxiosInstance from './AxiosInstance';
 
 const drawerWidth = 240;
 
@@ -26,6 +27,7 @@ export default function Navbar(props) {
   const { content } = props
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const navigate = useNavigate();
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -34,7 +36,7 @@ export default function Navbar(props) {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        MUI
+        SRM LOTTO
       </Typography>
       <Divider />
       <List>
@@ -71,10 +73,26 @@ export default function Navbar(props) {
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
+  const handleLogout = (navObj) => {
+    if (navObj.narbarName === 'Logout') {
+      AxiosInstance.post('logoutall/', {}).then((response) => {
+        if (response.status === 204) {
+          localStorage.clear();
+          navigate('/');
+        }
+      }).catch(err => console.log(err))
+    }
+  }
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        maxHeight: 'calc(100vh-100px)'
+      }}
+    >
       <CssBaseline />
-      <AppBar component="nav">
+      <AppBar component="nav" className='liner-bg'>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -90,17 +108,18 @@ export default function Navbar(props) {
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
-            MUI
+            SRM LOTTO
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {routeWithIcons.map((navObj, index) => (
-                <Button  sx={{ color:'#fff' } }
-                  key={index}
-                  component={Link}
-                  to={navObj.path}
-                >
-                  <ListItemText primary={navObj.narbarName} />
-                </Button >
+              <Button sx={{ color: '#fff' }}
+                key={index}
+                component={Link}
+                to={navObj?.path}
+                onClick={() => handleLogout(navObj)}
+              >
+                <ListItemText primary={navObj.narbarName} />
+              </Button >
             ))}
           </Box>
         </Toolbar>
