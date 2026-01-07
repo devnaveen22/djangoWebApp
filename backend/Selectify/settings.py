@@ -132,3 +132,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+WHATSAPP_API_TOKEN = 'EAAdcqpRYUVoBQaiJa9nvYUeys7KF4jkzLx3Nx0dQeczOSZCkGm3k4xRaqf9zgV54pmZCisGq58i3lNqdR76pTePeKeExL3nZAWlAh9xJeZBq7q98DruHqxV9t9FTltpHqnm353lQbsVb0fWLmcN1lTKSQ0jrJSViVz5oNX7IPeCn8bZCh7nGqooJcK2AVLHSmGRFClCqDQShJZCQjxtYiXLoKJYyMyxZAzKS5IZBab8ylIRZAeYhXaIzRsSFyMHWQfAsY4ahe3bC2eQfy0Gk9aOU3'
+WHATSAPP_PHONE_NUMBER_ID = '893336010538163' 
+ADMIN_WHATSAPP_NUMBER = '916369145599'
+FRONTEND_URL = 'http://127.0.0.1:8000'
+WHATSAPP_TEMPLATE_NAME = 'booking_verification_two_actions'

@@ -20,6 +20,11 @@ AxiosInstance.interceptors.request.use(
         else{
             config.headers.Authorization = ``
         }
+        if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())) {
+            if (config.url && !config.url.endsWith('/')) {
+                config.url += '/';
+            }
+        }        
         return config;
     }
 )
@@ -31,10 +36,9 @@ AxiosInstance.interceptors.response.use(
     (error) => {
         if(error.response && error.response.status === 401){
             localStorage.removeItem('Token')
-            window.location.href='/'
         }
+        return Promise.reject(error);
 
     }
 )
-
 export default AxiosInstance;

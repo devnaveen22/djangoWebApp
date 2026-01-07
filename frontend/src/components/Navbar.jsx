@@ -141,7 +141,7 @@ export default function Navbar(props) {
           {drawer}
         </Drawer>
       </nav>
-      <Box component="main" sx={{ p: 3 }}>
+      <Box component="main" sx={{ p: 3,width:'100%' }}>
         <Toolbar />
         {content}
       </Box>
