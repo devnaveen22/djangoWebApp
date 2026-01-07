@@ -1,0 +1,31 @@
+:root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+  
+html,body{
+    padding: 0;
+    margin: 0;
+    border: none;
+    height: 100%;
+    width: 100%;
+}
+input::-ms-reveal {
+    display: none;
+}
+input::-ms-clear {
+    display: none;
+}
+
+input[type="password"]::-webkit-textfield-decoration-container {
+    visibility: hidden;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    display: none !important;
+}
+
+/* Remove any default appearance */
+input[type="password"] {
+    appearance: none;
+    -webkit-appearance: none;
+}

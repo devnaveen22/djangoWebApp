@@ -1,0 +1,1 @@
+web: gunicorn Selectify.wsgi --log-file -
