@@ -16,4 +16,3 @@ export const getSlotColor = (status) => {
     { value: 'paytm', label: 'Paytm', color: '#00baf2' }
   ];
   
-  export const UPI_NUMBER = '6369145599';

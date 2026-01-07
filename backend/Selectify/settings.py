@@ -1,17 +1,26 @@
 from pathlib import Path
-
+import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+DJANGO_ENV = env.str("DJANGO_ENV","development")
+
+if DJANGO_ENV == "production":
+    env.read_env(BASE_DIR / ".env.production")
+else:
+    env.read_env(BASE_DIR / ".env.development")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5fhl!g4^x(4!hkr4^9lm^alnsu7u$4-a(^kry(ef=j861dl6m7'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = []
 
@@ -42,9 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 
 AUTH_USER_MODEL = 'api.customUsers'
 
@@ -81,14 +88,7 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'testDB',
-        'USER': 'postgres',
-        'PASSWORD': 'R&B@18f06v3r@1807',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': env.db()
 }
 
 
@@ -134,8 +134,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-WHATSAPP_API_TOKEN = 'EAAdcqpRYUVoBQaiJa9nvYUeys7KF4jkzLx3Nx0dQeczOSZCkGm3k4xRaqf9zgV54pmZCisGq58i3lNqdR76pTePeKeExL3nZAWlAh9xJeZBq7q98DruHqxV9t9FTltpHqnm353lQbsVb0fWLmcN1lTKSQ0jrJSViVz5oNX7IPeCn8bZCh7nGqooJcK2AVLHSmGRFClCqDQShJZCQjxtYiXLoKJYyMyxZAzKS5IZBab8ylIRZAeYhXaIzRsSFyMHWQfAsY4ahe3bC2eQfy0Gk9aOU3'
-WHATSAPP_PHONE_NUMBER_ID = '893336010538163' 
-ADMIN_WHATSAPP_NUMBER = '916369145599'
-FRONTEND_URL = 'http://127.0.0.1:8000'
-WHATSAPP_TEMPLATE_NAME = 'booking_verification_two_actions'
+WHATSAPP_API_TOKEN = env('WHATSAPP_API_TOKEN')
+WHATSAPP_PHONE_NUMBER_ID = env('WHATSAPP_PHONE_NUMBER_ID')
+ADMIN_WHATSAPP_NUMBER = env('ADMIN_WHATSAPP_NUMBER')
+FRONTEND_URL = env('FRONTEND_URL')
+WHATSAPP_TEMPLATE_NAME = env('WHATSAPP_TEMPLATE_NAME')

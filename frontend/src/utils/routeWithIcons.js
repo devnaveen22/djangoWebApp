@@ -4,11 +4,10 @@ import InfoIcon from '@mui/icons-material/Info';
 import { About } from '../components/About';
 import { Profile } from '../components/Profile';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AdminDashboard from '../components/AdminDashboard';
-import Home1 from '../components/Home1';
+import Home from '../components/Home';
 
 export const routeWithIcons =[
-    {narbarName:'Home',navIcon:HomeIcon,path:'/',component:Home1},
+    {narbarName:'Home',navIcon:HomeIcon,path:'/',component:Home},
     {narbarName:'About Us',navIcon:InfoIcon,path:'/about',component:About},
     {narbarName:'Profile',navIcon:AccountCircleIcon,path:'/profile',component:Profile},
     {narbarName:'Logout',navIcon:LogoutIcon}
