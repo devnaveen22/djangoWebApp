@@ -24,7 +24,6 @@ export const AuthContextProvider = ({children})=>{
         }
         catch(err){
             console.error(err);
-            logout();
         }
         finally{
             setLoading(false);
