@@ -15,14 +15,14 @@ else:
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
+BACKEND_URL = env('BACKEND_URL')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [BACKEND_URL]
 
 
 # Application definition
@@ -138,5 +138,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 WHATSAPP_API_TOKEN = env('WHATSAPP_API_TOKEN')
 WHATSAPP_PHONE_NUMBER_ID = env('WHATSAPP_PHONE_NUMBER_ID')
 ADMIN_WHATSAPP_NUMBER = env('ADMIN_WHATSAPP_NUMBER')
-FRONTEND_URL = env('FRONTEND_URL')
 WHATSAPP_TEMPLATE_NAME = env('WHATSAPP_TEMPLATE_NAME')

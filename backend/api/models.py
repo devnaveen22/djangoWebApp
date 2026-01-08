@@ -154,7 +154,7 @@ class ManualBooking(models.Model):
     
     def get_verification_url(self, action):
         """Generate verification URL for approve/reject"""
-        base_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+        base_url = getattr(settings, 'BACKEND_URL', 'http://localhost:3000')
         
         return f"{base_url}/api/slot/verify-booking/{self.verification_token}/{action}/"
     
