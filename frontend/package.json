@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "start": "serve -s build -l $PORT",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "react-router-dom": "^7.10.1",
     "react-virtualized": "^9.22.6",
     "react-window": "^2.2.3",
+    "serve": "^14.2.5",
     "yup": "^1.7.1"
   },
   "devDependencies": {
