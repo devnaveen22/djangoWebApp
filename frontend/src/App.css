@@ -1,56 +1,196 @@
-html, body, #root {
+/* -------------------------
+   Global Reset & Base
+-------------------------- */
+html,
+body,
+#root {
     height: 100%;
     margin: 0;
-  }
-  
-.myFormBackGround {
-    background: rgb(205, 0, 118);
-    background: linear-gradient(137deg, rgba(205, 0, 118, 1) 0%, rgba(85, 35, 185, 1) 68%);
-    width: 100vw;
-    height: 100vh;
     padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+/* -------------------------
+   Background Wrapper
+-------------------------- */
+.myFormBackGround {
+    background: linear-gradient(
+        135deg,
+        #1e3c72 0%,
+        #2a5298 70%
+    );
+    width: 100vw;
+    min-height: 100vh;
+    padding: 16px;
     border: none;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+/* -------------------------
+   Main White Container
+-------------------------- */
 .whiteBox {
-    background: white;
-    padding: 20px;
-    min-width: 400px;
+    background: #ffffff;
+    padding: 32px;
+    min-width: 420px;
+    max-width: 520px;
+    width: 100%;
     height: fit-content;
-    width: fit-content;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
-    border-radius: 15px;
+    border-radius: 16px;
+    box-shadow:
+        rgba(0, 0, 0, 0.15) 0px 20px 40px,
+        rgba(0, 0, 0, 0.08) 0px 8px 16px;
 }
 
+/* -------------------------
+   Item Wrapper
+-------------------------- */
 .itemBox {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 80px;
+    min-height: 72px;
+    margin-bottom: 12px;
 }
 
+/* -------------------------
+   Title
+-------------------------- */
 .title {
-    font-size: 30px;
-    color: #333;
-    font-weight: bold;
+    font-size: 28px;
+    color: #1f2937; /* dark slate */
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 16px;
 }
 
+/* -------------------------
+   Form & Buttons
+-------------------------- */
 .myForm,
 .myButton {
     width: 100%;
 }
 
+.myForm input,
+.myForm select,
+.myForm textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.myForm input:focus,
+.myForm select:focus,
+.myForm textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* -------------------------
+   Primary Button
+-------------------------- */
 .myButton {
-    background: rgb(66, 8, 160) !important;
+    background: linear-gradient(
+        135deg,
+        #2563eb 0%,
+        #1e40af 100%
+    ) !important;
+    color: #ffffff;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.liner-bg{
-    background: linear-gradient(137deg, rgba(205, 0, 118, 1) 0%, rgba(85, 35, 185, 1) 68%) !important;
-    color: white !important;
+
+.myButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0px 10px 20px rgba(37, 99, 235, 0.35);
 }
-.slot-btn-bg{
-    background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+
+.myButton:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* -------------------------
+   Gradient Utility Background
+-------------------------- */
+.liner-bg {
+    background: linear-gradient(
+        135deg,
+        #2563eb 0%,
+        #1e40af 100%
+    ) !important;
+    color: #ffffff !important;
+}
+
+/* -------------------------
+   Slot Button
+-------------------------- */
+.slot-btn-bg {
+    background: linear-gradient(
+        90deg,
+        #334155 0%,
+        #0f172a 100%
+    );
+    color: #ffffff;
+    border-radius: 8px;
+}
+
+/* -------------------------
+   Mobile Responsive Styles
+-------------------------- */
+@media (max-width: 768px) {
+    .whiteBox {
+        min-width: unset;
+        max-width: 100%;
+        padding: 24px;
+        border-radius: 14px;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    .itemBox {
+        min-height: 64px;
+    }
+}
+
+@media (max-width: 480px) {
+    .myFormBackGround {
+        padding: 12px;
+    }
+
+    .whiteBox {
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .title {
+        font-size: 22px;
+    }
+
+    .myButton {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
 }
