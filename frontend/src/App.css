@@ -1,10 +1,8 @@
-/* -------------------------
-   Global Reset & Base
--------------------------- */
 html,
 body,
 #root {
     height: 100%;
+    overflow: hidden;
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -17,15 +15,8 @@ body,
     box-sizing: inherit;
 }
 
-/* -------------------------
-   Background Wrapper
--------------------------- */
 .myFormBackGround {
-    background: linear-gradient(
-        135deg,
-        #1e3c72 0%,
-        #2a5298 70%
-    );
+    background: #ffffff;
     width: 100vw;
     min-height: 100vh;
     padding: 16px;
@@ -35,9 +26,41 @@ body,
     align-items: center;
 }
 
-/* -------------------------
-   Main White Container
--------------------------- */
+.myFormBackGround::before,
+.myFormBackGround::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245, 166, 35, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.myFormBackGround::before {
+    top: -200px;
+    right: -200px;
+}
+
+.myFormBackGround::after {
+    bottom: -160px;
+    left: -160px;
+    animation-delay: 2s;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.3;
+    }
+}
+
+/* =========================
+   Form Transition Wrapper
+========================= */
 .whiteBox {
     background: #ffffff;
     padding: 32px;
@@ -46,14 +69,48 @@ body,
     width: 100%;
     height: fit-content;
     border-radius: 16px;
-    box-shadow:
-        rgba(0, 0, 0, 0.15) 0px 20px 40px,
-        rgba(0, 0, 0, 0.08) 0px 8px 16px;
+    box-shadow: 0 15px 50px rgba(245, 166, 35, 0.35);
+    position: relative;
+    z-index: 1;
+    animation: fadeSlideIn 0.9s ease-out;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-/* -------------------------
-   Item Wrapper
--------------------------- */
+.whiteBox:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(245, 166, 35, 0.4);
+}
+
+/* Same animation language as Intro */
+@keyframes fadeSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* =========================
+   Title
+========================= */
+
+@keyframes slideInFromTop {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   Form Layout
+========================= */
 .itemBox {
     display: flex;
     justify-content: center;
@@ -62,21 +119,16 @@ body,
     min-height: 72px;
     margin-bottom: 12px;
 }
-
-/* -------------------------
-   Title
--------------------------- */
 .title {
     font-size: 28px;
-    color: #1f2937; /* dark slate */
     font-weight: 600;
     text-align: center;
+    color: #f5a623;
     margin-bottom: 16px;
+    text-shadow: 0 4px 20px rgba(245, 166, 35, 0.3);
+    animation: slideInFromTop 0.8s ease-out;
 }
 
-/* -------------------------
-   Form & Buttons
--------------------------- */
 .myForm,
 .myButton {
     width: 100%;
@@ -86,80 +138,72 @@ body,
 .myForm select,
 .myForm textarea {
     width: 100%;
-    padding: 12px 14px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
+    padding: 12px 14px;;
     font-size: 14px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    border-radius: 8px;
+    border: 1px solid #f5a623;
+    background: #ffffff;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.myForm input::placeholder,
+.myForm textarea::placeholder {
+    color: #aaa;
 }
 
 .myForm input:focus,
 .myForm select:focus,
 .myForm textarea:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: #f5a623;
+    box-shadow: 0 10px 30px rgba(245, 166, 35, 0.3);
+    transform: translateY(-1px);
 }
-
-/* -------------------------
-   Primary Button
--------------------------- */
 .myButton {
-    background: linear-gradient(
-        135deg,
-        #2563eb 0%,
-        #1e40af 100%
-    ) !important;
-    color: #ffffff;
-    border: none;
     padding: 12px 16px;
     border-radius: 10px;
     font-size: 15px;
     font-weight: 500;
+    border: none;
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-transform: uppercase;
+    font-family: inherit;
+    background: linear-gradient(135deg, #f5a623 0%, #f7b733 100%);
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(245, 166, 35, 0.3);
+    transition: all 0.35s ease;
+    animation: slideInFromBottom 0.9s ease-out;
+}
+
+@keyframes slideInFromBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .myButton:hover {
     transform: translateY(-1px);
-    box-shadow: 0px 10px 20px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 15px 40px rgba(245, 166, 35, 0.35);
 }
 
 .myButton:active {
     transform: translateY(0);
     box-shadow: none;
+    box-shadow: 0 15px 40px rgba(245, 166, 35, 0.35);
 }
 
-/* -------------------------
-   Gradient Utility Background
--------------------------- */
-.liner-bg {
-    background: linear-gradient(
-        135deg,
-        #2563eb 0%,
-        #1e40af 100%
-    ) !important;
-    color: #ffffff !important;
-}
-
-/* -------------------------
-   Slot Button
--------------------------- */
 .slot-btn-bg {
-    background: linear-gradient(
-        90deg,
-        #334155 0%,
-        #0f172a 100%
-    );
-    color: #ffffff;
     border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(245, 166, 35, 0.25);
 }
-
-/* -------------------------
-   Mobile Responsive Styles
--------------------------- */
 @media (max-width: 768px) {
-    .whiteBox {
+    .whiteBox {        
         min-width: unset;
         max-width: 100%;
         padding: 24px;
@@ -193,4 +237,44 @@ body,
         font-size: 14px;
         padding: 10px 14px;
     }
+}
+/* =========================
+   MUI TextField Theme Override
+========================= */
+
+/* Remove blue outline */
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #f5a623 !important;
+    border-width: 2px;
+}
+
+/* Glow effect like Intro */
+.MuiOutlinedInput-root.Mui-focused {
+    box-shadow: 0 10px 30px rgba(245, 166, 35, 0.3);
+    border-radius: 14px;
+}
+
+/* Input text */
+.MuiOutlinedInput-input {
+    font-family: 'Montserrat', 'Arial', sans-serif;
+}
+
+/* Label color */
+.MuiInputLabel-root {
+    color: #999;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+}
+
+/* Focused label color */
+.MuiInputLabel-root.Mui-focused {
+    color: #f5a623 !important;
+}
+
+/* Error state */
+.MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline {
+    border-color: #e53935;
+}
+.buttons-container a{
+    text-decoration: none;
+    color: inherit;
 }

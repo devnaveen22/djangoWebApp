@@ -8,7 +8,7 @@ import Home from '../components/Home';
 
 export const routeWithIcons =[
     {narbarName:'Home',navIcon:HomeIcon,path:'/',component:Home},
-    {narbarName:'About Us',navIcon:InfoIcon,path:'/about',component:About},
-    {narbarName:'Profile',navIcon:AccountCircleIcon,path:'/profile',component:Profile},
+    // {narbarName:'About Us',navIcon:InfoIcon,path:'/about',component:About},
+    // {narbarName:'Profile',navIcon:AccountCircleIcon,path:'/profile',component:Profile},
     {narbarName:'Logout',navIcon:LogoutIcon}
 ]

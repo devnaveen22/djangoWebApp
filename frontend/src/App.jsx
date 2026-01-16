@@ -5,11 +5,12 @@ import { useLocation } from 'react-router-dom'
 import { Login } from "./components/Login";
 import { Register } from "./components/Register";
 import ProtectedRoutes from "./ProtectedRoutes";
+import { IntroPage } from "./components/IntroPage";
 
 const App = () => {
   const location = useLocation()
   const path = location.pathname
-  const isLoginOrReg = path === '/' || path === '/register'
+  const isLoginOrReg = path === '/' || path === '/register' ||path === '/login'
   const Token = localStorage.getItem('Token')
   const isAuthenticated = Token && Token?.length >0
   return (
@@ -17,7 +18,8 @@ const App = () => {
       {
         isLoginOrReg && !isAuthenticated ? (
           <Routes>
-            <Route path="/" element={ <Login />} />
+            <Route path="/" element={ <IntroPage/>} />
+            <Route path="/login" element={ <Login/>} />
             <Route path="/register" element={<Register />} />
           </Routes>
         )

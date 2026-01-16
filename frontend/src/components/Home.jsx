@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { useEffect, useState, useCallback } from 'react';
 import AxiosInstance from './AxiosInstance';
-import qr from '../assets/Qr.png'
+import qr from '../assets/Qr.png';
+import CloseIcon from '@mui/icons-material/Close';
 
 import {
   Box,
@@ -57,12 +58,12 @@ const SlotButton = React.memo(({ slot, onClick }) => {
   const getColor = () => {
     if (slot.status === 'booked') return { main: '#ef5350', light: '#ffebee', dark: '#c62828' };
     if (slot.status === 'pending') return { main: '#ff9800', light: '#fff3e0', dark: '#e65100' };
-    return { main: '#4caf50', light: '#e8f5e9', dark: '#2e7d32' };
+    return { main: '#361C15', light: '#fbe9e7', dark: '#bf360c' };
   };
 
   const getIcon = () => {
     if (slot.status === 'booked') return <BlockIcon sx={{ fontSize: 18 }} />;
-    if (slot.status === 'pending') return <HourglassEmptyIcon sx={{ fontSize: 18 }} />;
+    if (slot.status === 'pending') return <HourglassEmptyIcon sx={{ fontSize: 18, color: '#ff9800' }} />;
     return <EventSeatIcon sx={{ fontSize: 18 }} />;
   };
 
@@ -72,63 +73,48 @@ const SlotButton = React.memo(({ slot, onClick }) => {
   return (
     <Tooltip
       title={
-        slot.status === 'booked' ? '🚫 Already Booked' :
-          slot.status === 'pending' ? '⏳ Pending Approval' :
-            '✨ Click to Book'
+        slot.status === 'booked' ? 'Already Booked' :
+          slot.status === 'pending' ? 'Pending Approval' :
+            'Click to Book'
       }
       arrow
       placement="top"
     >
       <span style={{ height: '100%', display: 'block' }}>
-        <Button
-          fullWidth
-          disabled={isDisabled}
-          onClick={() => onClick(slot)}
-          sx={{
-            height: '100%',
-            minHeight: { xs: 70, sm: 80 },
-            p: { xs: 1, sm: 1.5 },
-            borderRadius: { xs: 2, sm: 2.5 },
-            fontSize: { xs: 13, sm: 14 },
-            fontWeight: 700,
+            <Button
+        fullWidth
+        disabled={isDisabled}
+        onClick={() => onClick(slot)}
+        sx={{
+          height: '100%',
+          minHeight: { xs: 70, sm: 80 },
+          p: { xs: 1, sm: 1.5 },
+          borderRadius: { xs: 1.5, sm: 2 },
+          fontSize: { xs: 13, sm: 14 },
+          fontWeight: 600,
+          bgcolor: isDisabled ? colors.light : '#fff',
+          color: isDisabled ? colors.dark : colors.main,
+          border: `2px solid ${colors.main}`,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 0.5,
+          transition: 'all 0.2s ease',
+          '&:hover': {
             bgcolor: isDisabled ? colors.light : colors.main,
             color: isDisabled ? colors.dark : '#fff',
-            border: `2px solid ${isDisabled ? colors.main : 'transparent'}`,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5,
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            position: 'relative',
-            overflow: 'hidden',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: isDisabled ? 'none' : 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%)',
-              pointerEvents: 'none',
-            },
-            '&:hover': {
-              bgcolor: isDisabled ? colors.light : colors.dark,
-              transform: isDisabled ? 'none' : 'translateY(-4px) scale(1.02)',
-              boxShadow: isDisabled ? 'none' : `0 12px 24px ${colors.main}40`,
-              borderColor: isDisabled ? colors.main : colors.dark,
-            },
-            '&:active': {
-              transform: isDisabled ? 'none' : 'translateY(-2px) scale(1.01)',
-            },
-            '&:disabled': {
-              color: colors.dark,
-            }
-          }}
-        >
-          {getIcon()}
-          <Typography variant="body2" fontWeight={700} sx={{ fontSize: { xs: 12, sm: 14 } }}>
-            {slot.slot_number}
-          </Typography>
-        </Button>
+            transform: isDisabled ? 'none' : 'translateY(-2px)',
+            boxShadow: isDisabled ? 'none' : '0 4px 12px rgba(216, 67, 21, 0.25)',
+          },
+          '&:disabled': {
+            color: colors.dark,
+          }
+        }}
+      >
+        {getIcon()}
+        <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: 12, sm: 14 } }}>
+          {slot.slot_number}
+        </Typography>
+      </Button>
       </span>
     </Tooltip>
   );
@@ -141,15 +127,10 @@ const Legend = ({ color, label, icon, count }) => (
     sx={{
       px: { xs: 1.5, sm: 2.5 },
       py: { xs: 1, sm: 1.25 },
-      borderRadius: 2,
-      border: '1px solid',
-      borderColor: 'divider',
-      background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-      transition: 'all 0.3s ease',
-      '&:hover': {
-        transform: 'translateY(-2px)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
-      }
+      borderRadius: 1.5,
+      border: '1px solid #361C15',
+      bgcolor: 'white',
+      backdropFilter: 'blur(10px)',
     }}
   >
     <Stack direction="row" spacing={1.5} alignItems="center">
@@ -157,12 +138,12 @@ const Legend = ({ color, label, icon, count }) => (
         sx={{
           width: { xs: 32, sm: 36 },
           height: { xs: 32, sm: 36 },
-          borderRadius: 1.5,
-          bgcolor: `${color}20`,
+          borderRadius: 1,
+          bgcolor: 'rgba(255,255,255,0.25)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: color
+          color: '#361C15'
         }}
       >
         {icon}
@@ -172,7 +153,7 @@ const Legend = ({ color, label, icon, count }) => (
           {label}
         </Typography>
         {count !== undefined && (
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
+          <Typography variant="caption" sx={{ opacity: 0.9, fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
             {count} slots
           </Typography>
         )}
@@ -188,7 +169,7 @@ const SlotSkeleton = () => (
       variant="rectangular"
       sx={{
         height: { xs: 70, sm: 80 },
-        borderRadius: { xs: 2, sm: 2.5 },
+        borderRadius: { xs: 1.5, sm: 2 },
         bgcolor: 'rgba(0,0,0,0.06)'
       }}
       animation="wave"
@@ -199,7 +180,6 @@ const SlotSkeleton = () => (
 /* ---------------- Main Component ---------------- */
 export default function Home() {
   const { user } = useAuth()
-  console.log(user)
   const isAdmin = user?.is_staff && user?.is_superuser
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -258,7 +238,7 @@ export default function Home() {
 
   const handleProceed = async () => {
     if (!payerName.trim() || !upiName.trim()) {
-      setSnackbar({ open: true, message: '⚠️ Please fill all required details', severity: 'warning' });
+      setSnackbar({ open: true, message: 'Please fill all required details', severity: 'warning' });
       return;
     }
 
@@ -274,7 +254,7 @@ export default function Home() {
 
       setSnackbar({
         open: true,
-        message: '🎉 Payment submitted successfully! Awaiting admin approval.',
+        message: 'Payment submitted successfully! Awaiting admin approval.',
         severity: 'success'
       });
 
@@ -283,7 +263,7 @@ export default function Home() {
     } catch (error) {
       setSnackbar({
         open: true,
-        message: error.response?.data?.message || '❌ Booking failed. Please try again.',
+        message: error.response?.data?.message || 'Booking failed. Please try again.',
         severity: 'error'
       });
     } finally {
@@ -312,21 +292,19 @@ export default function Home() {
   return (
     isAdmin ? <AdminDashboard /> :
       <Box sx={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         py: { xs: 2, sm: 4 },
         px: { xs: 1, sm: 2 }
       }}>
-        <Container maxWidth="xl">
           <Fade in timeout={800}>
             <Card sx={{
-              borderRadius: { xs: 3, sm: 4 },
-              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-              overflow: 'hidden'
+              borderRadius: { xs: 2, sm: 3 },
+              boxShadow: '0 15px 40px rgba(245, 166, 35, 0.3)',
+              overflow: 'hidden',
             }}>
               <Box sx={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
+                background: 'white',
+                color: '#361C15',
+                boxShadow: 'inset 0px 3px 20px 0px #DE9F00 !important',
                 p: { xs: 2, sm: 3, md: 4 }
               }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
@@ -334,17 +312,18 @@ export default function Home() {
                     <Box sx={{
                       width: { xs: 40, sm: 48 },
                       height: { xs: 40, sm: 48 },
-                      borderRadius: 2,
-                      bgcolor: 'rgba(255,255,255,0.2)',
+                      borderRadius: 1.5,
+                      bgcolor: '#DE9F00',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backdropFilter: 'blur(10px)'
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid #361C15'
                     }}>
-                      <EventSeatIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
+                      <EventSeatIcon sx={{ fontSize: { xs: 24, sm: 28, color: '#361C15' } }} />
                     </Box>
                     <Box>
-                      <Typography variant="h4" fontWeight={800} sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' } }}>
+                      <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' }, letterSpacing: '-0.5px' }}>
                         Slot Booking
                       </Typography>
                       <Typography variant="body2" sx={{ opacity: 0.9, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
@@ -358,14 +337,13 @@ export default function Home() {
                       onClick={() => fetchSlots(true)}
                       disabled={refreshing}
                       sx={{
-                        bgcolor: 'rgba(255,255,255,0.2)',
+                        bgcolor: '#DE9F00',
                         color: 'white',
                         backdropFilter: 'blur(10px)',
                         '&:hover': {
-                          bgcolor: 'rgba(255,255,255,0.3)',
-                          transform: 'rotate(360deg)',
+                          bgcolor: '#361C15',
                         },
-                        transition: 'all 0.6s ease',
+                        transition: 'all 0.3s ease',
                       }}
                     >
                       {refreshing ? <CircularProgress size={24} sx={{ color: 'white' }} /> : <RefreshIcon />}
@@ -379,7 +357,7 @@ export default function Home() {
                   mt={3}
                 >
                   <Legend
-                    color="#4caf50"
+                    color="#d84315"
                     label="Available"
                     icon={<EventSeatIcon fontSize="small" />}
                     count={stats.available}
@@ -399,7 +377,7 @@ export default function Home() {
                 </Stack>
               </Box>
 
-              <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+              <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 }, bgcolor: '#fafafa' }}>
                 {loading ? (
                   <Box
                     sx={{
@@ -425,7 +403,16 @@ export default function Home() {
                       variant="outlined"
                       startIcon={<RefreshIcon />}
                       onClick={() => fetchSlots(true)}
-                      sx={{ mt: 3, borderRadius: 2 }}
+                      sx={{
+                        mt: 3,
+                        borderRadius: 1.5,
+                        borderColor: '#d84315',
+                        color: '#d84315',
+                        '&:hover': {
+                          borderColor: '#bf360c',
+                          bgcolor: 'rgba(216, 67, 21, 0.04)'
+                        }
+                      }}
                     >
                       Refresh Slots
                     </Button>
@@ -448,8 +435,6 @@ export default function Home() {
               </CardContent>
             </Card>
           </Fade>
-
-          {/* Booking Dialog */}
           <Dialog
             open={dialogOpen}
             TransitionComponent={Transition}
@@ -460,67 +445,79 @@ export default function Home() {
             fullScreen={isMobile}
             PaperProps={{
               sx: {
-                borderRadius: isMobile ? 0 : 3,
+                borderRadius: isMobile ? 0 : 2,
                 maxHeight: isMobile ? '100%' : '90vh'
               }
             }}
           >
             <DialogTitle sx={{
-              fontWeight: 700,
-              fontSize: { xs: 20, sm: 24 },
-              pb: 2,
-              px: { xs: 2, sm: 3 },
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white'
+              bgcolor: 'white',
+              p: { xs: 2, sm: 2.5 },
+              borderRadius: 1.5,
+              display: 'inline-block',
+              boxShadow: 'inset 0px 3px 20px 0px #DE9F00 !important'
             }}>
               <Stack direction="row" alignItems="center" spacing={1.5}>
                 <Box sx={{
                   width: 40,
                   height: 40,
-                  borderRadius: 2,
-                  bgcolor: 'rgba(255,255,255,0.2)',
+                  borderRadius: 1.5,
+                  bgcolor: '#DE9F00',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  border: '1px solid #361C15'
                 }}>
                   <EventSeatIcon sx={{ fontSize: 24 }} />
                 </Box>
                 <span>Confirm Booking</span>
               </Stack>
             </DialogTitle>
+            <IconButton
+              aria-label="close"
+              onClick={handleCancel}
+              sx={(theme) => ({
+                position: 'absolute',
+                right: 8,
+                top: 14,
+                color: '#361C15 !important'
+              })}
+            >
+              <CloseIcon />
+            </IconButton>
 
             <DialogContent sx={{ pt: 3, px: { xs: 2, sm: 3 }, pb: 2 }}>
               <Stack spacing={{ xs: 2.5, sm: 3 }} py={2}>
                 <Chip
                   label={`Slot: ${activeSlot?.slot_number}`}
-                  color="primary"
                   size="medium"
                   icon={<EventSeatIcon />}
                   sx={{
-                    fontWeight: 700,
+                    fontWeight: 600,
                     fontSize: { xs: 15, sm: 17 },
                     py: 2.5,
+                    boxShadow: 'rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px',
+                    color: '#361C15',
                     '& .MuiChip-icon': {
-                      fontSize: 20
+                      fontSize: 20,
+                      color: '#361C15'
                     }
                   }}
                 />
 
-                {/* QR Code Section */}
                 <Paper
                   elevation={0}
                   sx={{
                     p: { xs: 2.5, sm: 3 },
                     textAlign: 'center',
-                    borderRadius: 3,
-                    border: '2px dashed',
-                    borderColor: 'primary.main',
-                    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+                    borderRadius: 2,
+                    border: '2px solid #361C15',
+                    bgcolor: '#fafafa'
                   }}
                 >
                   <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" mb={2}>
-                    <QrCode2Icon color="primary" sx={{ fontSize: { xs: 24, sm: 28 } }} />
-                    <Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: '1.1rem', sm: '1.3rem' } }}>
+                    <QrCode2Icon sx={{ fontSize: { xs: 24, sm: 28 }, color: '#361C15' }} />
+                    <Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: '1.1rem', sm: '1.3rem' }, color: '#361C15' }}>
                       Scan to Pay
                     </Typography>
                   </Stack>
@@ -529,9 +526,10 @@ export default function Home() {
                     sx={{
                       bgcolor: 'white',
                       p: { xs: 2, sm: 2.5 },
-                      borderRadius: 2,
+                      borderRadius: 1.5,
                       display: 'inline-block',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+                      boxShadow: 'rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px',
+                      border: '1px solid #361C15'
                     }}
                   >
                     <Box
@@ -541,17 +539,16 @@ export default function Home() {
                       sx={{
                         width: { xs: 180, sm: 220 },
                         height: { xs: 180, sm: 220 },
-                        borderRadius: 2,
-                        border: '2px solid #e0e0e0'
+                        borderRadius: 1
                       }}
                     />
                   </Box>
 
-                  <Paper elevation={2} sx={{ mt: 2, p: 1.5, borderRadius: 2, bgcolor: 'white' }}>
+                  <Paper elevation={0} sx={{ mt: 2, p: 1.5, borderRadius: 1.5, bgcolor: 'white', border: '1px solid #361C15' }}>
                     <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
-                      <AccountBalanceWalletIcon color="primary" sx={{ fontSize: 20 }} />
+                      <AccountBalanceWalletIcon sx={{ fontSize: 20, color: '#361C15' }} />
                       <Typography variant="body1" fontWeight={600} sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                        UPI NUMBER : <span style={{ color: '#667eea' }}>{import.meta.env.VITE_UPI_NUMBER}</span>
+                        UPI NUMBER: <span style={{ color: '#361C15' }}>{import.meta.env.VITE_UPI_NUMBER}</span>
                       </Typography>
                     </Stack>
                   </Paper>
@@ -560,7 +557,7 @@ export default function Home() {
                 <Alert
                   severity="info"
                   icon={<InfoOutlinedIcon />}
-                  sx={{ borderRadius: 2, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}
+                  sx={{ borderRadius: 1.5, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}
                 >
                   Complete payment first, then fill the form below
                 </Alert>
@@ -579,7 +576,13 @@ export default function Home() {
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
+                      borderRadius: 1.5,
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#d84315'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#d84315'
                     }
                   }}
                 />
@@ -592,13 +595,19 @@ export default function Home() {
                   onChange={(e) => setUpiName(e.target.value)}
                   variant="outlined"
                   placeholder="Name shown in payment app"
-                  helperText="⚠️ Must match your UPI app name exactly"
+                  helperText="Must match your UPI app name exactly"
                   InputProps={{
                     startAdornment: <PaymentIcon sx={{ mr: 1, color: 'text.secondary' }} />,
                   }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
+                      borderRadius: 1.5,
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#d84315'
+                      }
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#d84315'
                     }
                   }}
                 />
@@ -619,25 +628,25 @@ export default function Home() {
                       ].map(app => (
                         <Paper
                           key={app.value}
-                          elevation={paymentApp === app.value ? 3 : 0}
+                          elevation={0}
                           sx={{
                             p: 1.5,
-                            borderRadius: 2,
+                            borderRadius: 1.5,
                             border: '2px solid',
-                            borderColor: paymentApp === app.value ? app.color : 'divider',
-                            bgcolor: paymentApp === app.value ? `${app.color}10` : 'transparent',
+                            borderColor: paymentApp === app.value ? app.color : '#e0e0e0',
+                            bgcolor: paymentApp === app.value ? `${app.color}08` : 'transparent',
                             cursor: 'pointer',
-                            transition: 'all 0.3s ease',
+                            transition: 'all 0.2s ease',
                             '&:hover': {
                               borderColor: app.color,
-                              transform: 'translateX(4px)'
+                              bgcolor: `${app.color}08`
                             }
                           }}
                           onClick={() => setPaymentApp(app.value)}
                         >
                           <FormControlLabel
                             value={app.value}
-                            control={<Radio size="small" sx={{ color: app.color }} />}
+                            control={<Radio size="small" sx={{ color: app.color, '&.Mui-checked': { color: app.color } }} />}
                             label={
                               <Typography fontWeight={paymentApp === app.value ? 600 : 400} sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
                                 {app.label}
@@ -654,9 +663,9 @@ export default function Home() {
                 <Alert
                   severity="warning"
                   icon={<HourglassEmptyIcon />}
-                  sx={{ borderRadius: 2, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}
+                  sx={{ borderRadius: 1.5, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}
                 >
-                  ⏱️ Slot reserved for 15 minutes pending verification
+                  Slot reserved for 15 minutes pending verification
                 </Alert>
               </Stack>
             </DialogContent>
@@ -676,29 +685,38 @@ export default function Home() {
                 disabled={submitting}
                 fullWidth={isMobile}
                 sx={{
-                  borderRadius: 2,
+                  borderRadius: 1.5,
                   px: 4,
-                  fontWeight: 600
+                  fontWeight: 600,
+                  borderColor: '#361C15',
+                  color: '#DE9F00',
+                  '&:hover': {
+                    borderColor: '#DE9F00',
+                    bgcolor: '#DE9F00',
+                    color: '#361C15 !important'
+                  }
                 }}
               >
                 Cancel
               </Button>
               <Button
-                variant="contained"
+                variant="outlined"
                 size="large"
                 onClick={handleProceed}
                 disabled={submitting || !payerName.trim() || !upiName.trim()}
                 startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircleIcon />}
                 fullWidth={isMobile}
                 sx={{
+                  borderRadius: 1.5,
                   px: 4,
-                  fontWeight: 700,
-                  borderRadius: 2,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+                  fontWeight: 600,
+                  bgcolor: 'white',
+                  borderColor: '#361C15 !important',
+                  color: '#DE9F00',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #6a4292 100%)',
-                    boxShadow: '0 6px 16px rgba(102, 126, 234, 0.5)',
+                    borderColor: '#DE9F00',
+                    bgcolor: '#DE9F00',
+                    color: '#361C15 !important'
                   }
                 }}
               >
@@ -713,7 +731,6 @@ export default function Home() {
             message={snackbar.message}
             onClose={handleCloseSnackbar}
           />
-        </Container>
       </Box>
   );
 }
