@@ -45,9 +45,6 @@ import {
   EventSeat as EventSeatIcon,
   HourglassEmpty as HourglassEmptyIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
-  TrendingUp,
-  TrendingDown,
-  MoreVert,
   FilterList,
   ArrowDropDown,
   ArrowDropUp
@@ -360,11 +357,11 @@ export default function AdminDashboard() {
       field: 'amount',
       headerName: 'AMOUNT',
       width: 110,
-      headerAlign: 'right',
-      align: 'right',
+      headerAlign: 'center',
+      align: 'center',
       valueGetter: (params) => params?.row?.slot?.price || 5000,
       renderCell: (params) => (
-        <Typography variant="body2" fontWeight={600}>
+        <Typography variant="body2" fontWeight={600} lineHeight={4}>
           ₹{params?.value}
         </Typography>
       )
@@ -373,10 +370,10 @@ export default function AdminDashboard() {
       field: 'created_at',
       headerName: 'CREATED',
       width: 180,
-      headerAlign: 'left',
-      align: 'left',
+      headerAlign: 'center',
+      align: 'center',
       renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" lineHeight={4}>
           {format(new Date(params?.value), 'dd MMM, hh:mm a')}
         </Typography>
       )
@@ -389,7 +386,7 @@ export default function AdminDashboard() {
       align: 'center',
       sortable: false,
       renderCell: (params) => (
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" spacing={2} pt={1}>
           <Button
             size="small"
             variant="contained"
@@ -474,11 +471,11 @@ export default function AdminDashboard() {
       field: 'amount',
       headerName: 'AMOUNT',
       width: 110,
-      headerAlign: 'right',
-      align: 'right',
+      headerAlign: 'center',
+      align: 'center',
       valueGetter: (params) => params?.row?.slot?.price || 5000,
       renderCell: (params) => (
-        <Typography variant="body2" fontWeight={600}>
+        <Typography variant="body2" fontWeight={600} lineHeight={4}>
           ₹{params?.value}
         </Typography>
       )
@@ -505,10 +502,10 @@ export default function AdminDashboard() {
       field: 'created_at',
       headerName: 'BOOKED ON',
       width: 180,
-      headerAlign: 'left',
-      align: 'left',
+      headerAlign: 'center',
+      align: 'center',
       renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" lineHeight={4}>
           {format(new Date(params?.value), 'dd MMM, hh:mm a')}
         </Typography>
       )
@@ -788,8 +785,6 @@ export default function AdminDashboard() {
             />
           </Box>
         </Paper>
-
-        {/* Mobile Export Button */}
         {tabValue === 1 && currentData.length > 0 && (
           <Box sx={{ 
             display: { xs: 'flex', sm: 'none' },
