@@ -47,6 +47,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { AlertComp } from './Alert';
 import { useAuth } from '../context/AuthContext';
 import AdminDashboard from './AdminDashboard';
+import { MonetizationOn } from '@mui/icons-material';
 
 /* ---------------- Dialog Transition ---------------- */
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -64,7 +65,14 @@ const SlotButton = React.memo(({ slot, onClick }) => {
   const getIcon = () => {
     if (slot.status === 'booked') return <BlockIcon sx={{ fontSize: 18 }} />;
     if (slot.status === 'pending') return <HourglassEmptyIcon sx={{ fontSize: 18, color: '#ff9800' }} />;
-    return <EventSeatIcon sx={{ fontSize: 18 }} />;
+    return <MonetizationOn
+    sx={{
+      color: '#f5c542',
+      fontSize: 32,
+      filter: 'drop-shadow(0 0 4px rgba(245,197,66,0.6))'
+    }}
+  />
+  ;
   };
 
   const isDisabled = slot.status !== 'available';
