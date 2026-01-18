@@ -17,6 +17,9 @@ else:
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 BACKEND_URL = env('BACKEND_URL')
+
+BACKEND_API_URL = env('BACKEND_API_URL')
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
@@ -66,7 +69,7 @@ ROOT_URLCONF = 'Selectify.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -141,8 +144,13 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-WHATSAPP_API_TOKEN = env('WHATSAPP_API_TOKEN')
-WHATSAPP_PHONE_NUMBER_ID = env('WHATSAPP_PHONE_NUMBER_ID')
-ADMIN_WHATSAPP_NUMBER = env('ADMIN_WHATSAPP_NUMBER')
-WHATSAPP_TEMPLATE_NAME = env('WHATSAPP_TEMPLATE_NAME')
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD=env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL=env('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL=env('SERVER_EMAIL')
+ADMIN_EMAIL=env('ADMIN_EMAIL')
+EMAIL_TIMEOUT=10

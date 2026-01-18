@@ -7,6 +7,10 @@ from django.utils import timezone
 from datetime import timedelta
 import secrets
 import requests
+from django.core.validators import MinValueValidator
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 class CustomUserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -112,6 +116,10 @@ class ManualBooking(models.Model):
             ('paytm', 'Paytm'),
         ]
     )
+    amount = models.IntegerField(
+        validators = [MinValueValidator(2000)],
+        help_text='Amount must be at least 2000'
+    )
     verification_token = models.CharField(max_length=64, unique=True, default=secrets.token_urlsafe)
     status = models.CharField(
         max_length=20,
@@ -154,100 +162,45 @@ class ManualBooking(models.Model):
     
     def get_verification_url(self, action):
         """Generate verification URL for approve/reject"""
-        base_url = getattr(settings, 'BACKEND_URL', 'http://localhost:3000')
+        base_url = getattr(settings, 'BACKEND_API_URL', 'http://localhost:3000')
         
-        return f"{base_url}/api/slot/verify-booking/{self.verification_token}/{action}/"
-    
-    def send_whatsapp_notification(self):
-        """Send WhatsApp notification using approved template with 2 buttons"""
+        return f"{base_url}/slot/verify-booking/{self.verification_token}/{action}/"
+    def send_email_notification(self):
         try:
-            url = f"https://graph.facebook.com/v18.0/{settings.WHATSAPP_PHONE_NUMBER_ID}/messages"
-            
-            headers = {
-                'Authorization': f'Bearer {settings.WHATSAPP_API_TOKEN}',
-                'Content-Type': 'application/json'
+            subject = f"New Booking Request - Slot #{self.slot.slot_number}"
+            admin_email = getattr(settings, 'ADMIN_EMAIL', settings.DEFAULT_FROM_EMAIL)
+            expires_str = timezone.localtime(self.expires_at).strftime('%d %b %Y, %I:%M %p')
+            context = {
+                'slot_number': self.slot.slot_number,
+                'payer_name': self.payer_name,
+                'upi_account_name': self.upi_account_name,
+                'payment_app': self.get_payment_app_display(),
+                'amount': self.amount,
+                'expires_at': expires_str,
+                'approve_url': self.get_verification_url('approve'),
+                'reject_url': self.get_verification_url('reject'),
+                'booking_id': self.id,
             }
-            
-            # Format phone number
-            admin_phone = settings.ADMIN_WHATSAPP_NUMBER.replace('+', '').replace(' ', '')
-            templete = settings.WHATSAPP_TEMPLATE_NAME
-            
-            # Format expiry time
-            expires_str = self.expires_at.strftime('%d %b %Y, %I:%M %p')
-            
-            # For two-button template, both buttons use the same token
-            # The action (approve/reject) is in the URL path
-            payload = {
-                "messaging_product": "whatsapp",
-                "recipient_type": "individual",
-                "to": admin_phone,
-                "type": "template",
-                "template": {
-                    "name": templete,  # Your template name
-                    "language": {
-                        "code": "en"
-                    },
-                    "components": [
-                        {
-                            "type": "body",
-                            "parameters": [
-                                {"type": "text", "text": str(self.slot.slot_number)},
-                                {"type": "text", "text": str(self.payer_name)},
-                                {"type": "text", "text": str(self.upi_account_name)},
-                                {"type": "text", "text": str(self.get_payment_app_display())},
-                                {"type": "text", "text": str(self.slot.price)},
-                                {"type": "text", "text": expires_str}
-                            ]
-                        },
-                        {
-                            "type": "button",
-                            "sub_type": "url",
-                            "index": "0",  # First button (Approve)
-                            "parameters": [
-                                {"type": "text", "text": self.verification_token}
-                            ]
-                        },
-                        {
-                            "type": "button",
-                            "sub_type": "url",
-                            "index": "1",  # Second button (Reject)
-                            "parameters": [
-                                {"type": "text", "text": self.verification_token}
-                            ]
-                        }
-                    ]
-                }
-            }
-            
-            response = requests.post(url, json=payload, headers=headers, timeout=10)
-            response.raise_for_status()
-            
+            html_message = render_to_string('emails/booking_verification.html', context)
+            plain_message = strip_tags(html_message)
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[admin_email],
+                html_message=html_message,
+                fail_silently=False,
+            )
             return {
                 'success': True,
-                'method': 'whatsapp_template_two_buttons',
+                'method': 'email',
                 'status': 'sent',
-                'message_id': response.json().get('messages', [{}])[0].get('id'),
-                'response': response.json()
+                'recipient': admin_email
             }
-            
-        except requests.exceptions.RequestException as e:
-            print(f"WhatsApp API Error: {str(e)}")
-            if hasattr(e, 'response') and e.response is not None:
-                print(f"Response: {e.response.text}")
-            
-            return {
-                'success': False,
-                'method': 'whatsapp_template_two_buttons',
-                'status': 'error',
-                'error': str(e),
-                'error_details': e.response.text if hasattr(e, 'response') and e.response else None
-            }
-        
         except Exception as e:
-            print(f"Unexpected error: {str(e)}")
             return {
                 'success': False,
-                'method': 'whatsapp_template_two_buttons',
+                'method': 'email',
                 'status': 'error',
                 'error': str(e)
             }

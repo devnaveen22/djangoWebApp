@@ -49,7 +49,7 @@ class ManualBookingSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'slot_id', 'slot_number', 'payer_name', 
             'upi_account_name', 'payment_app', 'status', 
-            'created_at', 'expires_at','verification_token','verified_at'
+            'created_at', 'expires_at','verification_token','verified_at','amount'
         ]
         read_only_fields = ['id', 'status', 'created_at', 'expires_at', 'verified_at', 'verification_token']
     
@@ -72,7 +72,6 @@ class ManualBookingSerializer(serializers.ModelSerializer):
         slot_id = validated_data.pop('slot_id')
         slot = Slot.objects.select_for_update().get(id=slot_id)
         
-        # Check again after lock
         if slot.status != 'available':
             raise serializers.ValidationError({"message": "Slot is no longer available"})
         

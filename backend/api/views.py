@@ -83,7 +83,7 @@ class SlotViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             with transaction.atomic():
                 booking = serializer.save()
-                notification_result = booking.send_whatsapp_notification()
+                notification_result = booking.send_email_notification()
 
                 response_data = {
                     'message': 'Booking request submitted successfully',
@@ -93,9 +93,9 @@ class SlotViewSet(viewsets.ViewSet):
                     'status': booking.status,
                     'notification': notification_result,
                     'notification_info': (
-                        '✅ Admin notified via WhatsApp'
+                        'Admin notified via gmail'
                         if notification_result.get('success')
-                        else '⚠️ WhatsApp notification failed'
+                        else 'Email notification failed'
                     )
                 }
 

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Verification</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    
+                    <!-- Header with Logo and Title -->
+                    <tr>
+                        <td style="padding: 40px 40px 30px; border-bottom: 2px solid #1a73e8;">
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="vertical-align: middle;">
+                                        <!-- Logo -->
+                                        <svg width="48" height="48" viewBox="0 0 48 48" style="display: block;">
+                                            <rect width="48" height="48" rx="8" fill="#1a73e8"/>
+                                            <path d="M24 12L32 20H28V32H20V20H16L24 12Z" fill="white"/>
+                                            <rect x="16" y="34" width="16" height="2" rx="1" fill="white"/>
+                                        </svg>
+                                    </td>
+                                    <td style="vertical-align: middle; padding-left: 16px;">
+                                        <h1 style="margin: 0; color: #202124; font-size: 24px; font-weight: 500; letter-spacing: -0.5px;">
+                                            Booking Verification Required
+                                        </h1>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 24px; color: #5f6368; font-size: 15px; line-height: 1.6;">
+                                A new manual booking has been submitted and requires your verification before the expiration time.
+                            </p>
+                            
+                            <!-- Booking Details Card -->
+                            <div style="background-color: #f8f9fa; border-radius: 8px; padding: 24px; margin-bottom: 32px;">
+                                <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td colspan="2" style="padding-bottom: 16px;">
+                                            <h2 style="margin: 0; color: #202124; font-size: 16px; font-weight: 500;">Booking Details</h2>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px 0; color: #5f6368; font-size: 14px; width: 40%;">
+                                            Booking ID
+                                        </td>
+                                        <td style="padding: 10px 0; color: #202124; font-size: 14px; font-weight: 500; text-align: right;">
+                                            #{{ booking_id }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px 0; color: #5f6368; font-size: 14px;">
+                                            Slot Number
+                                        </td>
+                                        <td style="padding: 10px 0; color: #1a73e8; font-size: 15px; font-weight: 600; text-align: right;">
+                                            {{ slot_number }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px 0; color: #5f6368; font-size: 14px;">
+                                            Payer Name
+                                        </td>
+                                        <td style="padding: 10px 0; color: #202124; font-size: 14px; font-weight: 500; text-align: right;">
+                                            {{ payer_name }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px 0; color: #5f6368; font-size: 14px;">
+                                            UPI Account
+                                        </td>
+                                        <td style="padding: 10px 0; color: #202124; font-size: 14px; font-weight: 500; text-align: right;">
+                                            {{ upi_account_name }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px 0; color: #5f6368; font-size: 14px;">
+                                            Payment App
+                                        </td>
+                                        <td style="padding: 10px 0; color: #202124; font-size: 14px; font-weight: 500; text-align: right;">
+                                            {{ payment_app }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px 0; color: #5f6368; font-size: 14px;">
+                                            Amount
+                                        </td>
+                                        <td style="padding: 10px 0; color: #188038; font-size: 18px; font-weight: 600; text-align: right;">
+                                            ₹{{ amount }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="padding-top: 16px;">
+                                            <div style="background-color: #fff3e0; border-left: 3px solid #f57c00; padding: 12px 16px; border-radius: 4px;">
+                                                <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                                    <tr>
+                                                        <td style="padding-left: 12px; color: #e65100; font-size: 14px; font-weight: 500;">
+                                                            Expires: {{ expires_at }}
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <table role="presentation" style="width: 100%; margin-bottom: 32px;">
+                                <tr>
+                                    <td align="center">
+                                        <p style="margin: 0 0 20px; color: #5f6368; font-size: 14px;">
+                                            Please review and verify this booking
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <table role="presentation" style="border-collapse: collapse;">
+                                            <tr>
+                                                <td style="padding: 0 8px;">
+                                                    <a href="{{ approve_url }}" style="display: inline-block; padding: 12px 32px; background-color: #1a73e8; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: 500; font-size: 14px;">
+                                                        Approve Booking
+                                                    </a>
+                                                </td>
+                                                <td style="padding: 0 8px;">
+                                                    <a href="{{ reject_url }}" style="display: inline-block; padding: 12px 32px; background-color: #ffffff; color: #d93025; text-decoration: none; border-radius: 4px; font-weight: 500; font-size: 14px; border: 1px solid #d93025;">
+                                                        Reject Booking
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Information Note -->
+                            <div style="padding: 16px; background-color: #f1f3f4; border-radius: 4px;">
+                                <p style="margin: 0; color: #5f6368; font-size: 13px; line-height: 1.5;">
+                                    <strong style="color: #202124;">Important:</strong> This booking will be automatically cancelled if not verified before the expiration time. Please take action promptly.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 24px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center; border-top: 1px solid #e8eaed;">
+                            <p style="margin: 0; color: #80868b; font-size: 12px; line-height: 1.5;">
+                                This is an automated notification from your booking management system.<br>
+                                Please do not reply to this email.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
