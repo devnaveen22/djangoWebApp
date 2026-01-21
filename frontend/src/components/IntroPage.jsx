@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import { Login } from './Login'
-import { Register } from './Register'
 import './IntroPage.css'
 import logo from '../assets/logo.jpeg'
 import { Link } from 'react-router-dom'

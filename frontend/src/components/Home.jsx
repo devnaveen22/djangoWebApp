@@ -1,775 +1,485 @@
-import * as React from 'react';
-import { useEffect, useState, useCallback } from 'react';
-import AxiosInstance from './AxiosInstance';
-import qr from '../assets/Qr.png';
-import CloseIcon from '@mui/icons-material/Close';
+import React, { useState } from 'react';
+import { Gift, Trophy, Users, Camera, Award, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { prizes } from '../utils/priceList';
 
-import {
-  Box,
-  Container,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  CircularProgress,
-  Stack,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  Chip,
-  Divider,
-  Alert,
-  IconButton,
-  Tooltip,
-  Paper,
-  Fade,
-  Skeleton,
-  useTheme,
-  useMediaQuery
-} from '@mui/material';
-
-import Slide from '@mui/material/Slide';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import EventSeatIcon from '@mui/icons-material/EventSeat';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import BlockIcon from '@mui/icons-material/Block';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import QrCode2Icon from '@mui/icons-material/QrCode2';
-import PaymentIcon from '@mui/icons-material/Payment';
-import PersonIcon from '@mui/icons-material/Person';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { AlertComp } from './Alert';
-import { useAuth } from '../context/AuthContext';
-import AdminDashboard from './AdminDashboard';
-import { MonetizationOn } from '@mui/icons-material';
-
-/* ---------------- Dialog Transition ---------------- */
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
-/* ---------------- Slot Button ---------------- */
-const SlotButton = React.memo(({ slot, onClick }) => {
-  const getColor = () => {
-    if (slot.status === 'booked') return { main: '#ef5350', light: '#ffebee', dark: '#c62828' };
-    if (slot.status === 'pending') return { main: '#ff9800', light: '#fff3e0', dark: '#e65100' };
-    return { main: '#361C15', light: '#fbe9e7', dark: '#bf360c' };
-  };
-
-  const getIcon = () => {
-    if (slot.status === 'booked') return <BlockIcon sx={{ fontSize: 18 }} />;
-    if (slot.status === 'pending') return <HourglassEmptyIcon sx={{ fontSize: 18, color: '#ff9800' }} />;
-    return <MonetizationOn
-      sx={{
-        color: '#f5c542',
-        fontSize: 32,
-        filter: 'drop-shadow(0 0 4px rgba(245,197,66,0.6))'
-      }}
-    />
-      ;
-  };
-
-  const isDisabled = slot.status !== 'available';
-  const colors = getColor();
-
-  return (
-    <Tooltip
-      title={
-        slot.status === 'booked' ? 'Already Booked' :
-          slot.status === 'pending' ? 'Pending Approval' :
-            'Click to Book'
-      }
-      arrow
-      placement="top"
-    >
-      <span style={{ height: '100%', display: 'block' }}>
-        <Button
-          fullWidth
-          disabled={isDisabled}
-          onClick={() => onClick(slot)}
-          sx={{
-            height: '100%',
-            minHeight: { xs: 70, sm: 80 },
-            p: { xs: 1, sm: 1.5 },
-            borderRadius: { xs: 1.5, sm: 2 },
-            fontSize: { xs: 13, sm: 14 },
-            fontWeight: 600,
-            bgcolor: isDisabled ? colors.light : '#fff',
-            color: isDisabled ? colors.dark : colors.main,
-            border: `2px solid ${colors.main}`,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5,
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              bgcolor: isDisabled ? colors.light : colors.main,
-              color: isDisabled ? colors.dark : '#fff',
-              transform: isDisabled ? 'none' : 'translateY(-2px)',
-              boxShadow: isDisabled ? 'none' : '0 4px 12px rgba(216, 67, 21, 0.25)',
-            },
-            '&:disabled': {
-              color: colors.dark,
-            }
-          }}
-        >
-          {getIcon()}
-          <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: 12, sm: 14 } }}>
-            {slot.slot_number}
-          </Typography>
-        </Button>
-      </span>
-    </Tooltip>
-  );
-});
-
-/* ---------------- Legend Item ---------------- */
-const Legend = ({ color, label, icon, count }) => (
-  <Paper
-    elevation={0}
-    sx={{
-      px: { xs: 1.5, sm: 2.5 },
-      py: { xs: 1, sm: 1.25 },
-      borderRadius: 1.5,
-      border: '1px solid #361C15',
-      bgcolor: 'white',
-      backdropFilter: 'blur(10px)',
-    }}
-  >
-    <Stack direction="row" spacing={1.5} alignItems="center">
-      <Box
-        sx={{
-          width: { xs: 32, sm: 36 },
-          height: { xs: 32, sm: 36 },
-          borderRadius: 1,
-          bgcolor: 'rgba(255,255,255,0.25)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#361C15'
-        }}
-      >
-        {icon}
-      </Box>
-      <Box>
-        <Typography variant="body2" fontWeight={600} sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, lineHeight: 1.2 }}>
-          {label}
-        </Typography>
-        {count !== undefined && (
-          <Typography variant="caption" sx={{ opacity: 0.9, fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
-            {count} slots
-          </Typography>
-        )}
-      </Box>
-    </Stack>
-  </Paper>
-);
-
-/* ---------------- Loading Skeleton ---------------- */
-const SlotSkeleton = () => (
-  <Box sx={{ p: 1 }}>
-    <Skeleton
-      variant="rectangular"
-      sx={{
-        height: { xs: 70, sm: 80 },
-        borderRadius: { xs: 1.5, sm: 2 },
-        bgcolor: 'rgba(0,0,0,0.06)'
-      }}
-      animation="wave"
-    />
-  </Box>
-);
-
-/* ---------------- Main Component ---------------- */
 export default function Home() {
-  const { user } = useAuth()
-  const isAdmin = user?.is_staff && user?.is_superuser
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedPrize, setSelectedPrize] = useState(null);
 
-  const [slots, setSlots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [activeSlot, setActiveSlot] = useState(null);
-
-  const [payerName, setPayerName] = useState('');
-  const [upiName, setUpiName] = useState('');
-  const [amount, setAmount] = useState('');
-  const [paymentApp, setPaymentApp] = useState('gpay');
-  const [submitting, setSubmitting] = useState(false);
-
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
-
-  const fetchSlots = useCallback((showRefreshing = false) => {
-    if (showRefreshing) setRefreshing(true);
-
-    AxiosInstance.get('slot/')
-      .then((res) => {
-        setSlots(res.data || []);
-        if (showRefreshing) {
-          setSnackbar({ open: true, message: 'Slots refreshed successfully!', severity: 'success' });
-        }
-      })
-      .catch(() => {
-        setSnackbar({ open: true, message: 'Failed to fetch slots. Please try again.', severity: 'error' });
-      })
-      .finally(() => {
-        setLoading(false);
-        setRefreshing(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    fetchSlots();
-  }, [fetchSlots]);
-
-  const handleSlotClick = useCallback((slot) => {
-    if (slot.status !== 'available') return;
-    setActiveSlot(slot);
-    setDialogOpen(true);
-  }, []);
-
-  const handleCancel = () => {
-    setDialogOpen(false);
-    setActiveSlot(null);
-    setPayerName('');
-    setUpiName('');
-    setAmount('');
-    setPaymentApp('gpay');
+  const handleImageClick = (prize) => {
+    setSelectedPrize(prize);
+    setOpenDialog(true);
   };
 
-  const handleProceed = async () => {
-    if (!payerName.trim() || !upiName.trim() || amount <2000 || amount ==='') {
-      setSnackbar({ open: true, message: 'Please fill all required details', severity: 'warning' });
-      return;
-    }
-
-    setSubmitting(true);
-
-    try {
-      await AxiosInstance.post('slot/manual-booking/', {
-        slot_id: activeSlot.id,
-        payer_name: payerName.trim(),
-        upi_account_name: upiName.trim(),
-        payment_app: paymentApp,
-        amount:amount
-      });
-
-      setSnackbar({
-        open: true,
-        message: 'Payment submitted successfully! Awaiting admin approval.',
-        severity: 'success'
-      });
-
-      fetchSlots();
-      handleCancel();
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: error.response?.data?.message || 'Booking failed. Please try again.',
-        severity: 'error'
-      });
-    } finally {
-      setSubmitting(false);
-    }
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedPrize(null);
   };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  const stats = {
-    available: slots.filter(s => s.status === 'available').length,
-    pending: slots.filter(s => s.status === 'pending').length,
-    booked: slots.filter(s => s.status === 'booked').length,
-  };
-
-  const getGridColumns = () => {
-    if (isMobile) return 4;
-    if (isTablet) return 6;
-    return 8;
-  };
-
-  const columns = getGridColumns();
 
   return (
-    isAdmin ? <AdminDashboard /> :
-      <Box sx={{
-        py: { xs: 2, sm: 4 },
-        px: { xs: 1, sm: 2 }
-      }}>
-        <Fade in timeout={800}>
-          <Card sx={{
-            borderRadius: { xs: 2, sm: 3 },
-            boxShadow: '0 15px 40px rgba(245, 166, 35, 0.3)',
-            overflow: 'hidden',
-          }}>
-            <Box sx={{
-              background: 'white',
-              color: '#361C15',
-              boxShadow: 'inset 0px 3px 20px 0px #DE9F00 !important',
-              p: { xs: 2, sm: 3, md: 4 }
-            }}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                <Stack direction="row" spacing={1.5} alignItems="center">
-                  <Box sx={{
-                    width: { xs: 40, sm: 48 },
-                    height: { xs: 40, sm: 48 },
-                    borderRadius: 1.5,
-                    bgcolor: '#DE9F00',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid #361C15'
-                  }}>
-                    <EventSeatIcon sx={{ fontSize: { xs: 24, sm: 28, color: '#361C15' } }} />
-                  </Box>
-                  <Box>
-                    <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' }, letterSpacing: '-0.5px' }}>
-                      Slot Booking
-                    </Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.9, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                      Choose your perfect slot
-                    </Typography>
-                  </Box>
-                </Stack>
+    <>
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        
+        .carousel-item img {
+          cursor: pointer;
+          width: 100%;
+          height: 500px;
+          object-fit: cover;
+        }
+        
+        @media (max-width: 768px) {
+          .carousel-item img {
+            height: 300px;
+          }
+        }
 
-                <Tooltip title="Refresh Slots" arrow>
-                  <IconButton
-                    onClick={() => fetchSlots(true)}
-                    disabled={refreshing}
-                    sx={{
-                      bgcolor: '#DE9F00',
-                      color: 'white',
-                      backdropFilter: 'blur(10px)',
-                      '&:hover': {
-                        bgcolor: '#361C15',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    {refreshing ? <CircularProgress size={24} sx={{ color: 'white' }} /> : <RefreshIcon />}
-                  </IconButton>
-                </Tooltip>
-              </Stack>
+        .bg-gradient-purple {
+          background: linear-gradient(135deg, #5B21B6 0%, #4C1D95 50%, #1E3A8A 100%);
+        }
 
-              <Stack
-                direction={{ xs: 'column', sm: 'row' }}
-                spacing={{ xs: 1.5, sm: 2 }}
-                mt={3}
-              >
-                <Legend
-                  color="#d84315"
-                  label="Available"
-                  icon={<EventSeatIcon fontSize="small" />}
-                  count={stats.available}
-                />
-                <Legend
-                  color="#ff9800"
-                  label="Pending"
-                  icon={<HourglassEmptyIcon fontSize="small" />}
-                  count={stats.pending}
-                />
-                <Legend
-                  color="#ef5350"
-                  label="Booked"
-                  icon={<BlockIcon fontSize="small" />}
-                  count={stats.booked}
-                />
-              </Stack>
-            </Box>
+        .glass-effect {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-            <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 }, bgcolor: '#fafafa' }}>
-              {loading ? (
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${columns}, 1fr)`,
-                    gap: { xs: 1, sm: 2 },
-                  }}
-                >
-                  {Array.from({ length: 24 }).map((_, i) => (
-                    <SlotSkeleton key={i} />
-                  ))}
-                </Box>
-              ) : slots.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: { xs: 6, sm: 10 } }}>
-                  <EventSeatIcon sx={{ fontSize: { xs: 60, sm: 80 }, color: 'text.disabled', mb: 2 }} />
-                  <Typography variant="h6" color="text.secondary" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                    No Slots Available
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
-                    Please check back later or contact support
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    startIcon={<RefreshIcon />}
-                    onClick={() => fetchSlots(true)}
-                    sx={{
-                      mt: 3,
-                      borderRadius: 1.5,
-                      borderColor: '#d84315',
-                      color: '#d84315',
-                      '&:hover': {
-                        borderColor: '#bf360c',
-                        bgcolor: 'rgba(216, 67, 21, 0.04)'
-                      }
-                    }}
-                  >
-                    Refresh Slots
-                  </Button>
-                </Box>
-              ) : (
-                <Fade in timeout={600}>
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: `repeat(${columns}, 1fr)`,
-                      gap: { xs: 1, sm: 2 },
-                    }}
-                  >
-                    {slots.map((slot) => (
-                      <SlotButton key={slot.id} slot={slot} onClick={handleSlotClick} />
-                    ))}
-                  </Box>
-                </Fade>
-              )}
-            </CardContent>
-          </Card>
-        </Fade>
-        <Dialog
-          open={dialogOpen}
-          TransitionComponent={Transition}
-          keepMounted
-          onClose={handleCancel}
-          fullWidth
-          maxWidth="sm"
-          fullScreen={isMobile}
-          PaperProps={{
-            sx: {
-              borderRadius: isMobile ? 0 : 2,
-              maxHeight: isMobile ? '100%' : '90vh'
-            }
-          }}
-        >
-          <DialogTitle sx={{
-            bgcolor: 'white',
-            p: { xs: 2, sm: 2.5 },
-            borderRadius: 1.5,
-            display: 'inline-block',
-            boxShadow: 'inset 0px 3px 20px 0px #DE9F00 !important'
-          }}>
-            <Stack direction="row" alignItems="center" spacing={1.5}>
-              <Box sx={{
-                width: 40,
-                height: 40,
-                borderRadius: 1.5,
-                bgcolor: '#DE9F00',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid #361C15'
-              }}>
-                <EventSeatIcon sx={{ fontSize: 24 }} />
-              </Box>
-              <span>Confirm Booking</span>
-            </Stack>
-          </DialogTitle>
-          <IconButton
-            aria-label="close"
-            onClick={handleCancel}
-            sx={(theme) => ({
-              position: 'absolute',
-              right: 8,
-              top: 14,
-              color: '#361C15 !important'
-            })}
-          >
-            <CloseIcon />
-          </IconButton>
+        .blob {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(60px);
+          mix-blend-mode: multiply;
+          animation: pulse 4s ease-in-out infinite;
+        }
 
-          <DialogContent sx={{ pt: 3, px: { xs: 2, sm: 3 }, pb: 2 }}>
-            <Stack spacing={{ xs: 2.5, sm: 3 }} py={2}>
-              <Chip
-                label={`Slot: ${activeSlot?.slot_number}`}
-                size="medium"
-                icon={<EventSeatIcon />}
-                sx={{
-                  fontWeight: 600,
-                  fontSize: { xs: 15, sm: 17 },
-                  py: 2.5,
-                  boxShadow: 'rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px',
-                  color: '#361C15',
-                  '& .MuiChip-icon': {
-                    fontSize: 20,
-                    color: '#361C15'
-                  }
-                }}
-              />
-
-              <Paper
-                elevation={0}
-                sx={{
-                  p: { xs: 2.5, sm: 3 },
-                  textAlign: 'center',
-                  borderRadius: 2,
-                  border: '2px solid #361C15',
-                  bgcolor: '#fafafa'
-                }}
-              >
-                <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" mb={2}>
-                  <QrCode2Icon sx={{ fontSize: { xs: 24, sm: 28 }, color: '#361C15' }} />
-                  <Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: '1.1rem', sm: '1.3rem' }, color: '#361C15' }}>
-                    Scan to Pay
-                  </Typography>
-                </Stack>
-
-                <Box
-                  sx={{
-                    bgcolor: 'white',
-                    p: { xs: 2, sm: 2.5 },
-                    borderRadius: 1.5,
-                    display: 'inline-block',
-                    boxShadow: 'rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px',
-                    border: '1px solid #361C15'
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src={qr}
-                    alt="UPI QR Code"
-                    sx={{
-                      width: { xs: 180, sm: 220 },
-                      height: { xs: 180, sm: 220 },
-                      borderRadius: 1
-                    }}
-                  />
-                </Box>
-
-                <Paper elevation={0} sx={{ mt: 2, p: 1.5, borderRadius: 1.5, bgcolor: 'white', border: '1px solid #361C15' }}>
-                  <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
-                    <AccountBalanceWalletIcon sx={{ fontSize: 20, color: '#361C15' }} />
-                    <Typography variant="body1" fontWeight={600} sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                      UPI NUMBER: <span style={{ color: '#361C15' }}>{import.meta.env.VITE_UPI_NUMBER}</span>
-                    </Typography>
-                  </Stack>
-                </Paper>
-              </Paper>
-
-              <Alert
-                severity="info"
-                icon={<InfoOutlinedIcon />}
-                sx={{ borderRadius: 1.5, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}
-              >
-                Complete payment first, then fill the form below
-              </Alert>
-
-              <TextField
-                label="Your Full Name"
-                fullWidth
-                required
-                value={payerName}
-                onChange={(e) => setPayerName(e.target.value)}
-                variant="outlined"
-                placeholder="e.g., John Doe"
-                InputProps={{
-                  startAdornment: <PersonIcon sx={{ mr: 1, color: 'text.secondary' }} />,
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#d84315'
-                    }
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#d84315'
-                  }
-                }}
-              />
-
-              <TextField
-                label="UPI Account Name"
-                fullWidth
-                required
-                value={upiName}
-                onChange={(e) => setUpiName(e.target.value)}
-                variant="outlined"
-                placeholder="Name shown in payment app"
-                helperText="Must match your UPI app name exactly"
-                InputProps={{
-                  startAdornment: <PaymentIcon sx={{ mr: 1, color: 'text.secondary' }} />,
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#d84315'
-                    }
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#d84315'
-                  }
-                }}
-              />
-
-              <TextField
-                label="Amount"
-                type='number'
-                fullWidth
-                required
-                value={amount}
-                onChange={(e) => {
-                  const amtValue = e.target.value;
-                  setAmount(amtValue === ''? '':Number(amtValue))
-                }}
-                variant="outlined"
-                placeholder="Enter payment amount"
-                helperText="The minimum payable amount is 2,000"
-                InputProps={{
-                  startAdornment: <PaymentIcon sx={{ mr: 1, color: 'text.secondary' }} />,
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1.5,
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#d84315'
-                    }
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#d84315'
-                  }
-                }}
-              />
-
-              <Box>
-                <Typography variant="body2" fontWeight={600} mb={1.5} sx={{ fontSize: { xs: '0.9rem', sm: '0.95rem' } }}>
-                  Select Payment App:
-                </Typography>
-                <RadioGroup
-                  value={paymentApp}
-                  onChange={(e) => setPaymentApp(e.target.value)}
-                >
-                  <Stack spacing={1}>
-                    {[
-                      { value: 'gpay', label: 'Google Pay', color: '#4285f4' },
-                      { value: 'phonepe', label: 'PhonePe', color: '#5f259f' },
-                      { value: 'paytm', label: 'Paytm', color: '#00baf2' }
-                    ].map(app => (
-                      <Paper
-                        key={app.value}
-                        elevation={0}
-                        sx={{
-                          p: 1.5,
-                          borderRadius: 1.5,
-                          border: '2px solid',
-                          borderColor: paymentApp === app.value ? app.color : '#e0e0e0',
-                          bgcolor: paymentApp === app.value ? `${app.color}08` : 'transparent',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          '&:hover': {
-                            borderColor: app.color,
-                            bgcolor: `${app.color}08`
-                          }
-                        }}
-                        onClick={() => setPaymentApp(app.value)}
-                      >
-                        <FormControlLabel
-                          value={app.value}
-                          control={<Radio size="small" sx={{ color: app.color, '&.Mui-checked': { color: app.color } }} />}
-                          label={
-                            <Typography fontWeight={paymentApp === app.value ? 600 : 400} sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
-                              {app.label}
-                            </Typography>
-                          }
-                          sx={{ m: 0, width: '100%' }}
-                        />
-                      </Paper>
-                    ))}
-                  </Stack>
-                </RadioGroup>
-              </Box>
-
-              <Alert
-                severity="warning"
-                icon={<HourglassEmptyIcon />}
-                sx={{ borderRadius: 1.5, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}
-              >
-                Slot reserved for 15 minutes pending verification
-              </Alert>
-            </Stack>
-          </DialogContent>
-
-          <Divider />
-
-          <DialogActions sx={{
-            px: { xs: 2, sm: 3 },
-            py: { xs: 2, sm: 2.5 },
-            gap: { xs: 1.5, sm: 2 },
-            flexDirection: isMobile ? 'column-reverse' : 'row'
-          }}>
-            <Button
-              onClick={handleCancel}
-              variant="outlined"
-              size="large"
-              disabled={submitting}
-              fullWidth={isMobile}
-              sx={{
-                borderRadius: 1.5,
-                px: 4,
-                fontWeight: 600,
-                borderColor: '#361C15',
-                color: '#DE9F00',
-                '&:hover': {
-                  borderColor: '#DE9F00',
-                  bgcolor: '#DE9F00',
-                  color: '#361C15 !important'
-                }
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              onClick={handleProceed}
-              disabled={submitting || !payerName.trim() || !upiName.trim() || amount < 2000 || amount ===''}
-              startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircleIcon />}
-              fullWidth={isMobile}
-              sx={{
-                borderRadius: 1.5,
-                px: 4,
-                fontWeight: 600,
-                bgcolor: 'white',
-                borderColor: '#361C15 !important',
-                color: '#DE9F00',
-                '&:hover': {
-                  borderColor: '#DE9F00',
-                  bgcolor: '#DE9F00',
-                  color: '#361C15 !important'
-                }
-              }}
-            >
-              {submitting ? 'Processing...' : 'Confirm Booking'}
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <AlertComp
-          open={snackbar.open}
-          type={snackbar.severity}
-          message={snackbar.message}
-          onClose={handleCloseSnackbar}
-        />
-      </Box>
-  );
+        @keyframes pulse {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.3; }
+        }
+.carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='gold' viewBox='0 0 16 16'%3E%3Cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E");
 }
+
+.carousel-control-next-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='gold' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 14.354a.5.5 0 0 1 0-.708L10.293 8 4.646 2.354a.5.5 0 1 1 .708-.708l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708 0z'/%3E%3C/svg%3E");
+}
+      `}</style>
+
+      <div className="min-vh-100 bg-gradient-purple position-relative overflow-hidden">
+        <div className="position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
+          <div className="blob" style={{top: '80px', left: '80px', width: '288px', height: '288px', background: '#FBBF24'}}></div>
+          <div className="blob" style={{bottom: '80px', right: '80px', width: '384px', height: '384px', background: '#EC4899'}}></div>
+          <div className="blob" style={{top: '50%', left: '50%', width: '320px', height: '320px', background: '#A855F7'}}></div>
+        </div>
+
+        <div className="position-relative" style={{zIndex: 10}}>
+          <div className="text-center pt-5 pb-4 px-3">
+            <div className="d-inline-flex align-items-center justify-content-center bg-gradient-warning rounded-circle mb-4 animate-float" style={{width: '96px', height: '96px'}}>
+              <Trophy size={48} color="white" />
+            </div>
+            <h1 className="display-3 fw-bold text-white mb-3">
+              <span className="text-warning">SRM LOTTO</span>
+            </h1>
+            <p className="h3 text-warning mb-4">
+              வெற்றி உங்களுடையதாகட்டும்!
+            </p>
+            <div className="bg-gradient-warning rounded-4 p-4 mx-auto" style={{maxWidth: '400px'}}>
+              <p className="h2 fw-bold text-white mb-2">
+                Token Price: ₹5,000
+              </p>
+              <p className="text-white fw-semibold mb-0">
+                Advance: ₹2,000 | Balance: ₹3,000
+              </p>
+            </div>
+          </div>
+
+          <div className="container py-5">
+            <div className="glass-effect rounded-4 p-4 shadow-lg mb-4">
+              <div className="d-flex align-items-center gap-3 mb-4">
+                <div className="bg-warning p-3 rounded-3">
+                  <Trophy size={32} color="#000" />
+                </div>
+                <h2 className="h2 fw-bold text-white mb-0">
+                  பரிசு விவரங்கள் (Prize Details)
+                </h2>
+              </div>
+
+              <div 
+                id="carouselExampleCaptions" 
+                className="carousel slide mx-auto rounded-3" 
+                data-bs-ride="carousel"
+                style={{maxWidth: '80%', boxShadow: '0px 5px 15px 4px #FBBF24'}}
+              >
+                <div className="carousel-indicators">
+                  {prizes.map((_, indx) => (
+                    <button
+                      key={indx}
+                      type="button"
+                      data-bs-target="#carouselExampleCaptions"
+                      data-bs-slide-to={indx}
+                      className={indx === 0 ? "active" : ""}
+                      aria-current={indx === 0 ? "true" : undefined}
+                      aria-label={`Slide ${indx + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <div className="carousel-inner rounded-3">
+                  {prizes.map((prize, indx) => (
+                    <div
+                      className={`carousel-item ${indx === 0 ? "active" : ""}`}
+                      key={indx}
+                    >
+                      <img
+                        src={prize.img}
+                        className="d-block w-100"
+                        alt={prize.name}
+                        onClick={() => handleImageClick(prize)}
+                        style={{cursor: 'pointer'}}
+                      />
+                      <div className="carousel-caption d-block bg-dark bg-opacity-75 rounded-3 py-2">
+                        <h5 className="fw-bold">{prize.rank}</h5>
+                        <p className="mb-0">{prize.name}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  className="carousel-control-prev"
+                  type="button"
+                  data-bs-target="#carouselExampleCaptions"
+                  data-bs-slide="prev"
+                >
+                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Previous</span>
+                </button>
+
+                <button
+                  className="carousel-control-next"
+                  type="button"
+                  data-bs-target="#carouselExampleCaptions"
+                  data-bs-slide="next"
+                >
+                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Next</span>
+                </button>
+              </div>
+
+              {openDialog && selectedPrize && (
+                <div 
+                  className="modal show d-block" 
+                  style={{backgroundColor: 'rgba(0,0,0,0.5)'}}
+                  onClick={handleCloseDialog}
+                >
+                  <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content bg-gradient-purple border-warning" onClick={(e) => e.stopPropagation()}>
+                      <div className="modal-header bg-dark bg-opacity-50 border-warning">
+                        <h5 className="modal-title text-warning fw-bold">{selectedPrize.name}</h5>
+                        <button 
+                          type="button" 
+                          className="btn-close btn-close-white" 
+                          onClick={handleCloseDialog}
+                          aria-label="Close"
+                        ></button>
+                      </div>
+                      <div className="modal-body bg-light d-flex flex-wrap justify-content-between align-items-center">
+                        <div className="mb-3">
+                          <h6 className="text-purple fw-bold">Brand</h6>
+                          <p className="text-dark fs-5 mb-0">{selectedPrize.specs.brand}</p>
+                        </div>
+
+                        <div className="mb-3">
+                          <h6 className="text-purple fw-bold">Type</h6>
+                          <p className="text-dark fs-5 mb-0">{selectedPrize.specs.type}</p>
+                        </div>
+
+                        <div className="mb-3">
+                          <h6 className="text-purple fw-bold">Value</h6>
+                          <p className="text-purple fw-bold fs-4 mb-0">{selectedPrize.specs.value}</p>
+                        </div>
+
+                        {selectedPrize.specs.features && selectedPrize.specs.features.length > 0 && (
+                          <div>
+                            <h6 className="text-purple fw-bold mb-2">Features</h6>
+                            <ul className="list-unstyled d-flex flex-wrap justify-content-between align-items-center">
+                              {selectedPrize.specs.features.map((feature, idx) => (
+                                <li 
+                                  key={idx}
+                                  className="bg-purple bg-opacity-10 border-start border-4 border-purple rounded p-2 mb-2"
+                                >
+                                  <CheckCircle size={16} className="text-success me-2" style={{display: 'inline'}} />
+                                  {feature}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="glass-effect rounded-4 p-4 shadow-lg mb-4">
+              <div className="d-flex align-items-center gap-3 mb-4">
+                <div className="bg-warning p-3 rounded-3">
+                  <Camera size={32} color="#000" />
+                </div>
+                <h2 className="h2 fw-bold text-white mb-0">
+                  நடத்தும் முறை (Event Procedure)
+                </h2>
+              </div>
+
+              <div className="row g-3">
+                <div className="col-12">
+                  <div className="glass-effect rounded-3 p-4">
+                    <div className="d-flex gap-3">
+                      <div className="bg-warning rounded-circle p-2" style={{width: 'fit-content', height: 'fit-content'}}>
+                        <Camera size={24} color="#000" />
+                      </div>
+                      <div className="flex-fill">
+                        <h5 className="text-warning fw-bold mb-2">100% Live & Transparent</h5>
+                        <p className="text-white mb-0">
+                          இந்த நிகழ்ச்சி முழுவதும் <strong>Live முறையில்</strong> நடைபெறும். 
+                          நிகழ்ச்சி நடைபெறும் இடத்தில் <strong>CCTV Camera மூலம்</strong> அனைத்தும் 
+                          நேரலையாக காண்பிக்கப்படும்.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="glass-effect rounded-3 p-4">
+                    <div className="d-flex gap-3">
+                      <div className="bg-warning rounded-circle p-2" style={{width: 'fit-content', height: 'fit-content'}}>
+                        <Gift size={24} color="#000" />
+                      </div>
+                      <div className="flex-fill">
+                        <h5 className="text-warning fw-bold mb-2">Token Selection Method</h5>
+                        <p className="text-white mb-0">
+                          ஒரு <strong>சிலிண்ட்ரிக்கல் (Cylinder) வடிவ கண்ணாடி பெட்டி</strong> பயன்படுத்தப்படும். 
+                          அதில் அனைத்து டோக்கன்களும் போடப்பட்டு, அனைவரின் முன்னிலையில் சுழற்றப்படும்.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="glass-effect rounded-3 p-4">
+                    <div className="d-flex gap-3">
+                      <div className="bg-warning rounded-circle p-2" style={{width: 'fit-content', height: 'fit-content'}}>
+                        <Users size={24} color="#000" />
+                      </div>
+                      <div className="flex-fill">
+                        <h5 className="text-warning fw-bold mb-2">Audience Selection</h5>
+                        <p className="text-white mb-0">
+                          நிகழ்ச்சியில் சுமார் <strong>50 பேர் audience</strong> ஆக இருப்பார்கள். 
+                          டோக்கன் தேர்வு செய்வது <strong>நாங்கள் அல்ல</strong>. Audience-ல இருக்கிறவர்களே 
+                          தங்களாகவே டோக்கனை எடுத்துக் காட்டுவார்கள். தேர்வு முறையில் 
+                          <strong> எந்த வகையான கையாடலும் இல்லை</strong>.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="glass-effect rounded-3 p-4">
+                    <div className="d-flex gap-3">
+                      <div className="bg-warning rounded-circle p-2" style={{width: 'fit-content', height: 'fit-content'}}>
+                        <Award size={24} color="#000" />
+                      </div>
+                      <div className="flex-fill">
+                        <h5 className="text-warning fw-bold mb-2">Venue</h5>
+                        <p className="text-white mb-0">
+                          Event நடைபெறும் நாள் (Saturday அல்லது Sunday) 
+                          <strong> Mall அல்லது 1000 பேர் capacity உள்ள Mandapam</strong> போன்ற 
+                          இடத்தில் நடத்தப்படும்.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="glass-effect rounded-4 p-4 shadow-lg mb-4">
+              <div className="d-flex align-items-center gap-3 mb-4">
+                <div className="bg-warning p-3 rounded-3">
+                  <AlertCircle size={32} color="#000" />
+                </div>
+                <h2 className="h2 fw-bold text-white mb-0">
+                  விதிமுறைகள் & நிபந்தனைகள் (Terms & Conditions)
+                </h2>
+              </div>
+
+              <div className="row g-3">
+                <div className="col-12">
+                  <div className="bg-success bg-opacity-25 rounded-3 p-4 border-start border-4 border-success">
+                    <div className="d-flex gap-3">
+                      <CheckCircle size={24} className="text-success flex-shrink-0 mt-1" />
+                      <div>
+                        <h5 className="text-white fw-bold mb-2">1. Token Booking Amount</h5>
+                        <p className="text-white mb-0">
+                          மொத்த சீட்டு தொகை: <strong>₹5,000</strong><br/>
+                          • Advance: <strong>₹2,000</strong><br/>
+                          • Balance for Token: <strong>₹3,000</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="bg-primary bg-opacity-25 rounded-3 p-4 border-start border-4 border-primary">
+                    <div className="d-flex gap-3">
+                      <CheckCircle size={24} className="text-primary flex-shrink-0 mt-1" />
+                      <div>
+                        <h5 className="text-white fw-bold mb-2">2. Event Schedule</h5>
+                        <p className="text-white mb-0">
+                          <strong>1000 Token</strong> முழுவதும் முடிந்த பிறகே ஒரு நாள் 
+                          (Saturday அல்லது Sunday) Event organize செய்யப்படும்.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="bg-info bg-opacity-25 rounded-3 p-4 border-start border-4 border-info">
+                    <div className="d-flex gap-3">
+                      <CheckCircle size={24} className="text-info flex-shrink-0 mt-1" />
+                      <div>
+                        <h5 className="text-white fw-bold mb-2">3. Event Venue</h5>
+                        <p className="text-white mb-0">
+                          Event நடைபெறும் நாள் <strong>Mall அல்லது 1000 பேர் capacity உள்ள Mandapam</strong> 
+                          போன்ற இடத்தில் நடத்தப்படும்.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="bg-danger bg-opacity-25 rounded-3 p-4 border-start border-4 border-danger">
+                    <div className="d-flex gap-3">
+                      <XCircle size={24} className="text-danger flex-shrink-0 mt-1" />
+                      <div>
+                        <h5 className="text-white fw-bold mb-2">4. No Refund Policy ⚠️</h5>
+                        <p className="text-white mb-0">
+                          <strong>ஒருமுறை Token book செய்த பிறகு</strong>, "வேண்டாம்" என்று cancel செய்தால் 
+                          <strong className="text-danger bg-white "> Amount Refund கிடையாது</strong>. 
+                          இது முக்கியமாக குறிப்பிடப்படுகிறது.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="bg-warning bg-opacity-25 rounded-3 p-4 border-start border-4 border-warning">
+                    <div className="d-flex gap-3">
+                      <AlertCircle size={24} className="text-warning flex-shrink-0 mt-1" />
+                      <div>
+                        <h5 className="text-white fw-bold mb-2">5. Prize Policy - No Cash Exchange</h5>
+                        <p className="text-white mb-3">
+                          Event-ல் விழும் பரிசு: <strong>நாங்கள் முன்கூட்டியே சொல்லிய பரிசு தான் வழங்கப்படும்</strong>. 
+                          அதற்கு பதிலாக <strong className="text-warning">Cash / பணம் வழங்கப்படாது</strong>.
+                        </p>
+                        <div className="bg-dark bg-opacity-50 rounded-3 p-3">
+                          <p className="text-warning fw-semibold mb-1">உதாரணம்:</p>
+                          <p className="text-white mb-0">
+                            • Prize Bike என்றால் → Bike book செய்து கொடுக்கப்படும்<br/>
+                            • ₹2,00,000 Cash போன்ற மாற்று தொகை வழங்கப்படாது
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="bg-secondary bg-opacity-25 rounded-3 p-4 border-start border-4 border-secondary">
+                    <div className="d-flex gap-3">
+                      <Gift size={24} className="text-warning flex-shrink-0 mt-1" />
+                      <div>
+                        <h5 className="text-white fw-bold mb-2">6. Combo Prize Box</h5>
+                        <p className="text-white mb-0">
+                          <strong>₹3,000 Combo Prize Box</strong> இது குறிப்பிட்ட kitchen items மட்டும் அல்ல. 
+                          <strong> எந்த பொருளாகவும் இருக்கலாம்</strong>. Combo Box-ல் என்ன வரும் என்று 
+                          முன்கூட்டியே fix இல்லை.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-warning rounded-4 p-4 shadow-lg mb-5">
+              <h3 className="h3 fw-bold text-white text-center mb-4">
+                முக்கிய குறிப்புகள் (Important Points)
+              </h3>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <div className="bg-white bg-opacity-90 rounded-3 p-3 d-flex align-items-center gap-3">
+                    <CheckCircle size={24} className="text-success flex-shrink-0" />
+                    <p className="text-dark fw-semibold mb-0">100% Live + CCTV Transparency</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="bg-white bg-opacity-90 rounded-3 p-3 d-flex align-items-center gap-3">
+                    <CheckCircle size={24} className="text-success flex-shrink-0" />
+                    <p className="text-dark fw-semibold mb-0">Audience மூலம் Token Selection</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="bg-white bg-opacity-90 rounded-3 p-3 d-flex align-items-center gap-3">
+                    <XCircle size={24} className="text-danger flex-shrink-0" />
+                    <p className="text-dark fw-semibold mb-0">No Refund Policy</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="bg-white bg-opacity-90 rounded-3 p-3 d-flex align-items-center gap-3">
+                    <XCircle size={24} className="text-danger flex-shrink-0" />
+                    <p className="text-dark fw-semibold mb-0">No Cash Exchange for Prizes</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="bg-white bg-opacity-90 rounded-3 p-3 d-flex align-items-center gap-3">
+                    <AlertCircle size={24} className="text-warning flex-shrink-0" />
+                    <p className="text-dark fw-semibold mb-0">Event after All Tokens Sold</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="bg-white bg-opacity-90 rounded-3 p-3 d-flex align-items-center gap-3">
+                    <Gift size={24} className="text-purple flex-shrink-0" />
+                    <p className="text-dark fw-semibold mb-0">Combo Box - Various Items</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center pb-5">
+              <p className="text-white fs-5 mb-2">
+                For more details, contact us or book your token now!
+              </p>
+              <p className="text-white text-xl font-bold mt-2">
+                வெற்றி உங்களுடையதாகட்டும்! 🏆
+              </p>
+              </div>
+              </div>
+        </div>
+      </div>
+      </>
+              );
+            };
