@@ -100,8 +100,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="container py-5">
-            <div className="glass-effect rounded-4 p-4 shadow-lg mb-4">
+          <div className="container">
+            <div className="glass-effect rounded-4 py-4 px-2 shadow-lg mb-4">
               <div className="d-flex align-items-center gap-3 mb-4">
                 <div className="bg-warning p-3 rounded-3">
                   <Trophy size={32} color="#000" />
@@ -115,7 +115,7 @@ export default function Home() {
                 id="carouselExampleCaptions" 
                 className="carousel slide mx-auto rounded-3" 
                 data-bs-ride="carousel"
-                style={{maxWidth: '80%', boxShadow: '0px 5px 15px 4px #FBBF24'}}
+                style={{boxShadow: '0px 5px 15px 4px #FBBF24'}}
               >
                 <div className="carousel-indicators">
                   {prizes.map((_, indx) => (
