@@ -100,7 +100,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="container">
+          <div className="container" style={{maxWidth:'100%'}}>
             <div className="glass-effect rounded-4 py-4 px-2 shadow-lg mb-4">
               <div className="d-flex align-items-center gap-3 mb-4">
                 <div className="bg-warning p-3 rounded-3">
