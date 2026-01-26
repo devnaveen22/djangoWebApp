@@ -1,16 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinLengthValidator, RegexValidator
+from django.core.validators import MinLengthValidator, RegexValidator, MinValueValidator
 from django.contrib.auth.base_user import BaseUserManager
 from django.conf import settings
 from django.utils import timezone
-from datetime import timedelta
-import secrets
-import requests
-from django.core.validators import MinValueValidator
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from datetime import timedelta
+import secrets
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+
 class CustomUserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -117,7 +118,7 @@ class ManualBooking(models.Model):
         ]
     )
     amount = models.IntegerField(
-        validators = [MinValueValidator(2000)],
+        validators=[MinValueValidator(2000)],
         help_text='Amount must be at least 2000'
     )
     verification_token = models.CharField(max_length=64, unique=True, default=secrets.token_urlsafe)
@@ -183,24 +184,29 @@ class ManualBooking(models.Model):
             }
             html_message = render_to_string('emails/booking_verification.html', context)
             plain_message = strip_tags(html_message)
-            send_mail(
-                subject=subject,
-                message=plain_message,
+            message = Mail(
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[admin_email],
-                html_message=html_message,
-                fail_silently=False,
+                to_emails=admin_email,
+                subject=subject,
+                plain_text_content=plain_message,
+                html_content=html_message
             )
+            sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+            print(settings.SENDGRID_API_KEY,'sg')
+            response = sg.send(message)
+            
             return {
                 'success': True,
-                'method': 'email',
+                'method': 'sendgrid',
                 'status': 'sent',
-                'recipient': admin_email
+                'recipient': admin_email,
+                'status_code': response.status_code
             }
+            
         except Exception as e:
             return {
                 'success': False,
-                'method': 'email',
+                'method': 'sendgrid',
                 'status': 'error',
                 'error': str(e)
             }
