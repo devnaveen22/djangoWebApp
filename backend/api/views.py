@@ -199,11 +199,10 @@ class SlotViewSet(viewsets.ViewSet):
                         <h1>✅ Approved</h1>
                         <p>Slot: {}</p>
                         <p>Customer: {}</p>
-                        <p>Amount: ₹{}</p>
                     </div>
                 </body>
                 </html>
-                """.format(slot.slot_number, booking.payer_name, slot.price)
+                """.format(slot.slot_number, booking.payer_name)
 
                 return HttpResponse(html)
 
