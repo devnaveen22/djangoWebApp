@@ -38,7 +38,9 @@ export default function Navbar(props) {
       setAnchorElNav(null);
     }
   }
-
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
   return (
     <>
       <AppBar position="fixed" sx={{ backgroundColor: 'white'}}>
@@ -103,11 +105,11 @@ export default function Navbar(props) {
                   horizontal: 'left',
                 }}
                 open={Boolean(anchorElNav)}
-                onClose={handleLogout}
+                onClose={handleCloseNavMenu}
                 sx={{ display: { xs: 'block', md: 'none' } }}
               >
                 {routeWithIcons.map((page, index) => (
-                  <MenuItem key={index} onClick={() => handleLogout(page)}>
+                  <MenuItem  key={index} onClick={() => handleLogout(page)} component={Link} to={page?.path}>
                     <Typography sx={{ textAlign: 'center', color: '#361C15' }}>{page.narbarName}</Typography>
                   </MenuItem>
                 ))}
