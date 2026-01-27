@@ -549,7 +549,6 @@ export default function Booking() {
                     alt="UPI QR Code"
                     sx={{
                       width: { xs: 180, sm: 220 },
-                      height: { xs: 180, sm: 220 },
                       borderRadius: 1
                     }}
                   />
